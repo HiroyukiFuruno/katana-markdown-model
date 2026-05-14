@@ -1,15 +1,38 @@
-name: CI
+name: Test and Build
 
 on:
   push:
-    branches: [main, master]
-    paths-ignore:
-      - "**/*.md"
-      - ".agents/**"
-      - "docs/**"
-      - "openspec/**"
+    branches: [master]
+    paths:
+      - '**.rs'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'Justfile'
+      - 'just/**'
+      - '.agents/**'
+      - '.github/workflows/**'
+      - 'README.md'
+      - 'docs/**'
+      - 'openspec/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'tools/**'
   pull_request:
-    branches: [main, master]
+    branches: [master]
+    paths:
+      - '**.rs'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'Justfile'
+      - 'just/**'
+      - '.agents/**'
+      - '.github/workflows/**'
+      - 'README.md'
+      - 'docs/**'
+      - 'openspec/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'tools/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -25,29 +48,33 @@ env:
 jobs:
   test:
     name: Test and Build
+    # WHY: PR branchで通過済みのmerge commitでは重複CIを避け、masterへの直接pushでは必ず確認する。
+    if: >-
+      github.event_name != 'push' || (
+        !startsWith(github.event.head_commit.message, 'Merge pull request ') &&
+        !contains(github.event.head_commit.message, '(#')
+      )
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9
+        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
         with:
           toolchain: stable
           components: clippy, rustfmt
 
       - name: Cache Rust build outputs
-        uses: Swatinem/rust-cache@v2.9.1
+        uses: Swatinem/rust-cache@v2
         with:
           shared-key: ci-${{ matrix.os }}-stable-default
 
       - name: Install just
-        uses: taiki-e/install-action@v2.77.1
-        with:
-          tool: just
+        uses: taiki-e/install-action@just
 
       - name: Check types
         run: cargo check --workspace --locked

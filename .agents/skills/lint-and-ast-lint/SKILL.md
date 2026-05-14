@@ -20,7 +20,7 @@ just check
 - `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings`
 - `cargo test --test repository_ast_lint --locked -- --nocapture`
 - `cargo test --workspace --locked`
-- `scripts/openspec validate "bootstrap-kmm-document-model" --strict`
+- `scripts/openspec validate <active-change> --strict`
 
 ## ルール
 

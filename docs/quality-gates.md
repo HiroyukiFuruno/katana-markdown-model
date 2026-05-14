@@ -33,10 +33,10 @@ If workflow job names change, update branch protection in the same change. A
 passing local target is not enough when GitHub no longer requires the matching
 check.
 
-2026-05-07時点で、GitHubの `master` ブランチ保護（branch protection）は上記4checkを必須にしている。
+2026-05-15時点で、GitHubの `master` ブランチ保護（branch protection）は上記4checkを必須にしている。
 
-`master` へのpushでは、動作に影響しない文書、OpenSpec、agent手順だけの変更はCIを起動しない。
-PRでは必須checkを安定して返すため、同じ除外は入れない。
+`master` へのpushとPRでは、Rust、Justfile、agent手順、workflow、README、docs、OpenSpec、scripts、tests、toolsの変更で `Test and Build` を起動する。
+必須check名を変える場合は、同じ変更内でGitHubの `master` ブランチ保護（branch protection）も更新する。
 
 ## Release Readiness
 
