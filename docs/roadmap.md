@@ -1,173 +1,173 @@
 # KMM v0.1.0 Roadmap
 
-## 結論
+## Summary
 
-`katana-markdown-model`（KMM）は、`v0.1.0` 初回リリースまで小さなOpenSpec changeを順番に完了する。
+`katana-markdown-model` (KMM) reaches the first `v0.1.0` release by completing small OpenSpec changes in sequence.
 
-`v0.1.0` まではcrates.ioへ公開しない。すべての実装、検証、受け渡し条件が完了した後にだけ、`v0.1.0` を公開する。
+Do not publish `v0.1.0` until implementation, verification, and handoff conditions are complete.
 
-## KMMの責務
+## KMM Responsibility
 
-KMMはMarkdownをHTMLへ変換する部品ではない。
+KMM is not a Markdown-to-HTML converter.
 
-KMMは、KatanA ecosystemで共有するMarkdown文書モデル、source range、line-column、raw snippet、fingerprint、外部metadata解決を所有するlibraryである。これらはKLEの保存時metadata同期、KDVのviewer/export、KatanAのeditor-viewer同期制御に使われる材料である。
+KMM owns the shared Markdown document model, source ranges, line-column positions, raw snippets, fingerprints, and external metadata resolution used across the KatanA ecosystem. These outputs are materials for KLE save-time metadata reconciliation, KDV viewer/export behavior, and KatanA editor-viewer synchronization.
 
-KMMは次を所有しない。
+KMM does not own:
 
-- 製品CLI
-- 製品UI
-- HTML/PDF/PNG/JPG出力
-- Floem、egui、KatanA workspace state
-- viewer/editor同期制御
-- KDV、KLE、KCF、KatanA本体の統合処理
+- product CLI
+- product UI
+- HTML/PDF/PNG/JPG output
+- Floem, egui, or KatanA workspace state
+- viewer/editor synchronization control
+- integration logic for KDV, KLE, KCF, or KatanA itself
 
-## v0.1.0までのchange順序
+## Change Order Through v0.1.0
 
-## v0.1.0 release PR準備チェック表
+## v0.1.0 Release PR Checklist
 
-この表は、`release/v0.1.0` から `master` へ出すrelease PRで何を完了し、何をmerge後に残すかを固定する。
+This table fixes what must be completed in the release PR from `release/v0.1.0` to `master`, and what remains after merge.
 
-| change | 状態 | release PRに含める内容 | PR後に残す内容 |
+| change | status | included in release PR | left after PR |
 | --- | --- | --- | --- |
-| `stabilize-release-readiness-gates` | 完了済み | ブランチ保護（branch protection）の実設定確認 | check名が変わった場合の保護設定更新 |
-| `stabilize-canonical-fixtures` | 完了済み | なし | fixture更新が発生した場合の同期PR |
-| `finalize-metadata-resolution-contract` | 完了済み | なし | downstream採用時の追加用途fixture |
-| `lock-parser-adapter-strategy` | PR内で完了 | parser境界、contract test、parser評価メモ | parser engine差し替えは将来change |
-| `prepare-manual-harness` | PR内で再整理 | 構造確認補助tool、package混入確認 | release必須の目視GUIから外す |
-| `prepare-downstream-handoff-contract` | PR内で再整理 | KDV/KCF/KLE/KatanA受け渡し境界、KDV改名方針 | downstream repo側の実装PR |
-| `publish-v0-1-0-release` | PR準備のみ | runbook、secret、PR、公開、verify、branch hygiene手順 | GitHub Release、crates.io公開、公開後verify、branch hygiene |
+| `stabilize-release-readiness-gates` | complete | branch protection settings verified | update protection if check names change |
+| `stabilize-canonical-fixtures` | complete | none | fixture sync PRs when fixtures change |
+| `finalize-metadata-resolution-contract` | complete | none | additional usage fixtures from downstream adoption |
+| `lock-parser-adapter-strategy` | complete in PR | parser boundary, contract tests, parser evaluation notes | future parser-engine replacement change |
+| `prepare-manual-harness` | reorganized in PR | structure-inspection aid and package exclusion check | keep it out of mandatory visual release gates |
+| `prepare-downstream-handoff-contract` | reorganized in PR | KDV/KCF/KLE/KatanA handoff boundary and KDV rename policy | downstream repository implementation PRs |
+| `publish-v0-1-0-release` | PR preparation only | runbook, secret, PR, publication, verification, and branch hygiene procedure | GitHub Release, crates.io publication, post-publication verification, branch hygiene |
 
-release PR作成前に、次をすべて満たす。
+Before creating the release PR, all of the following must be true:
 
-- active changeのOpenSpec検証が通っている
-- `just check` が通っている
-- `just release-check` が通っている
-- fixture testで代表構造、metadata、同期材料を検証できる
-- `cargo package --locked --allow-dirty --list` に開発用harnessが含まれていない
-- `master` のブランチ保護（branch protection）が `Test and Build (macos-latest)`、`Test and Build (ubuntu-latest)`、`Test and Build (windows-latest)`、`preflight` を必須checkにしている
-- `release/v0.1.0` から `master` へのrelease PRが作成済みで、必須checkが通っている
+- active OpenSpec change validation passes
+- `just check` passes
+- `just release-check` passes
+- fixture tests verify representative structure, metadata, and synchronization materials
+- `cargo package --locked --allow-dirty --list` does not include the development harness
+- `master` branch protection requires `Test and Build (macos-latest)`, `Test and Build (ubuntu-latest)`, `Test and Build (windows-latest)`, and `preflight`
+- release PR from `release/v0.1.0` to `master` exists and required checks pass
 
-実リリース前に、次をすべて満たす。
+Before the actual release, all of the following must be true:
 
-- release PRが `master` へmergeされている
-- `CARGO_REGISTRY_TOKEN` がGitHub secretとして登録されている
-- `v0.1.0` GitHub Release作成手順を実行できる
-- crates.io publish手順を実行できる
-- 公開後verify手順を実行できる
+- release PR is merged into `master`
+- `CARGO_REGISTRY_TOKEN` is registered as a GitHub secret
+- GitHub Release creation procedure is executable for `v0.1.0`
+- crates.io publication procedure is executable
+- post-publication verification procedure is executable
 
-## v0.1.0に含めない精度向上
+## Precision Work Excluded From v0.1.0
 
-parser精度、対応Markdown構文の拡張、metadata照合の追加推定ロジック（heuristic）は `v0.1.0` へ混ぜない。
+Parser precision, expanded Markdown syntax coverage, and additional metadata matching heuristics are not included in `v0.1.0`.
 
-`v0.1.0` はKMMの公開境界を固定するリリース（release）である。公開後にKDV、KLE、KatanAが採用した結果として見つかる精度改善は、`v0.1.1` 以降の小さなchangeで扱う。
+`v0.1.0` fixes KMM's public boundary. Precision improvements found after KDV, KLE, and KatanA adoption are handled by smaller `v0.1.1` or later changes.
 
-`v0.1.1` 候補:
+`v0.1.1` candidates:
 
-- canonical fixtureで見つかったsource range、line-column、raw snippet、fingerprintのズレ修正
-- footnote、image、link、HTML inline、math inlineの専用DTO化が必要になった場合の追加
-- metadata target移動判定の精度向上
-- editor-viewer同期で不足したanchor材料の追加
+- source range, line-column, raw snippet, and fingerprint drift found by canonical fixtures
+- dedicated DTOs for footnotes, images, links, HTML inline, or math inline if downstream usage proves they are required
+- metadata target move-detection precision improvements
+- additional editor-viewer synchronization anchor material when existing fields are insufficient
 
-ただし、KMMがviewer、export、同期制御を持たない境界は変えない。
+KMM still must not take ownership of viewer, export, or synchronization control.
 
 ### 1. `stabilize-release-readiness-gates`
 
-CI、release前検査、branch protection、`just check` / `release-check` の対応を固定する。
+Fix the mapping among CI, release preflight, branch protection, `just check`, and `release-check`.
 
-このchangeでは、KMLのrelease前検査を参考にする。ただしKMMはlibrary-onlyなので、npm、PyPI、Homebrew、binary artifact、MCPB、editor extensionの検査は持ち込まない。
+This change follows the KML release-preflight pattern, but KMM is library-only. Do not bring in npm, PyPI, Homebrew, binary artifact, MCPB, or editor extension checks.
 
-完了条件:
+Completion conditions:
 
-- `just check` が標準品質ゲートとして維持されている
-- `release-check` が `just check`、`cargo package --locked --allow-dirty`、`cargo publish --dry-run --locked --allow-dirty` を含む
-- GitHub Actionsの `release-preflight` が同じ検査を実行する
-- `master` branch protectionの必須checkが文書化されている
+- `just check` remains the standard quality gate
+- `release-check` includes `just check`, `cargo package --locked --allow-dirty`, and `cargo publish --dry-run --locked --allow-dirty`
+- GitHub Actions `release-preflight` runs the same checks
+- required checks for `master` branch protection are documented
 
 ### 2. `stabilize-canonical-fixtures`
 
-KatanA現行fixture、README badge、alert、description listをKMMの正本fixtureとして固定する。
+Fix current KatanA fixtures, README badges, alerts, and description lists as KMM canonical fixtures.
 
-完了条件:
+Completion conditions:
 
-- canonical fixtureの同期方法が決まっている
-- node種別、source range、raw snippet、fingerprintがテストで固定されている
-- 絶対パスに依存しない検証になっている
+- canonical fixture sync procedure is defined
+- node kinds, source ranges, raw snippets, and fingerprints are fixed by tests
+- verification does not depend on absolute paths
 
 ### 3. `finalize-metadata-resolution-contract`
 
-metadata解決のpublic contractを固定する。
+Fix the public contract for metadata resolution.
 
-完了条件:
+Completion conditions:
 
-- `Resolved`、`Moved`、`Unresolved`、`Conflict` がpublic DTOとして定義されている
-- editor保存時に必要なrequest/result DTOがKMM側で固定されている
-- unresolved metadataを削除しない契約がテストで固定されている
+- `Resolved`, `Moved`, `Unresolved`, and `Conflict` are public DTO states
+- request/result DTOs required for editor save-time behavior are fixed in KMM
+- tests fix the contract that unresolved metadata is not deleted
 
 ### 4. `lock-parser-adapter-strategy`
 
-parser内部型をpublic contractへ出さない境界と、主要Markdown構造のparse contractを固定する。
+Fix the boundary that parser internals never leak into the public contract, and define the parse contract for major Markdown structures.
 
-完了条件:
+Completion conditions:
 
-- parser engineを差し替えてもpublic DTOが壊れない
-- table、badge、alert、description list、footnote、diagram、math、emojiのcontract testがある
-- OS依存emojiを壊すparser候補を採用しない判断基準がある
+- public DTOs remain stable even if the parser engine is replaced
+- contract tests cover tables, badges, alerts, description lists, footnotes, diagrams, math, and emoji
+- parser candidates that break OS-dependent emoji handling are rejected
 
 ### 5. `prepare-manual-harness`
 
-`just harness-up` は、KMM出力の構造確認を補助する開発用toolとして扱う。
+`just harness-up` is a development-only aid for inspecting KMM output structure.
 
-KMMのrelease判定は、目視GUIではなくfixture testを正本にする。画面上の確認は、Markdown本文とKMMが解釈したnode一覧、選択nodeの位置情報、raw snippet、fingerprint、metadata解決状態を見る補助に限定する。
+KMM release decisions are based on fixture tests, not manual GUI inspection. Visual inspection is limited to confirming Markdown input, parsed node lists, selected-node position data, raw snippets, fingerprints, and metadata resolution states.
 
-これは製品UIではなく、release必須の手動品質ゲートでもない。
+This is not a product UI and not a mandatory manual release gate.
 
-完了条件:
+Completion conditions:
 
-- fixture testでKDV/KLE/KatanAが必要とする構造、metadata、同期材料を検証できる
-- `just harness-up` は任意の構造確認補助toolとして起動できる
-- KMM本体はlibrary-onlyを維持している
-- 開発用harnessのbinaryやUI依存が公開crateへ混入しない
+- fixture tests verify structure, metadata, and synchronization materials needed by KDV, KLE, and KatanA
+- `just harness-up` can be used as an optional structure-inspection aid
+- KMM remains library-only
+- development harness binaries and UI dependencies are excluded from the published crate
 
 ### 6. `prepare-downstream-handoff-contract`
 
-KDV、KLE、KCF、KatanAへ渡すpublic DTO境界と受け渡し条件を固定する。
+Fix the public DTO handoff boundary and handoff conditions for KDV, KLE, KCF, and KatanA.
 
-完了条件:
+Completion conditions:
 
-- downstreamがKMM内部parser型へ依存しない条件が明文化されている
-- downstreamが独自metadata schemaを作らない条件が明文化されている
-- KDVがviewer/exportを担うこと、KCF exportはKDV実装まで維持することが明文化されている
-- KatanAがeditor-viewer同期制御を担うことが明文化されている
+- downstream repositories are explicitly prohibited from depending on KMM parser internals
+- downstream repositories are explicitly prohibited from creating independent metadata schemas
+- KDV owns viewer/export behavior, and KCF export remains only until KDV provides equivalent functionality
+- KatanA owns editor-viewer synchronization control
 
 ### 7. `publish-v0-1-0-release`
 
-全change完了後に `v0.1.0` のGitHub Releaseとcrates.io公開を実施する。
+Publish `v0.1.0` to GitHub Releases and crates.io after all changes are complete.
 
-完了条件:
+Completion conditions:
 
-- 全OpenSpec changeが完了している
-- `just check` が通っている
-- `release-check` が通っている
-- `cargo package --locked --allow-dirty` が通っている
-- `cargo publish --dry-run --locked --allow-dirty` が通っている
-- `CARGO_REGISTRY_TOKEN` がGitHub secretとして登録されている
-- GitHub Releaseとcrates.io公開後のverify手順が通っている
+- all OpenSpec changes are complete
+- `just check` passes
+- `release-check` passes
+- `cargo package --locked --allow-dirty` passes
+- `cargo publish --dry-run --locked --allow-dirty` passes
+- `CARGO_REGISTRY_TOKEN` is registered as a GitHub secret
+- GitHub Release and crates.io post-publication verification passes
 
-## v0.1.0以降のbranch戦略
+## Branch Strategy After v0.1.0
 
-KMMは `v0.1.0` 以降、KML同様のbranch戦略を正式採用する。ただしKMMの既定ブランチは `master` を維持する。
+After `v0.1.0`, KMM formally adopts the KML-style branch strategy while keeping `master` as the default branch.
 
-- 既定ブランチ: `master`
-- release統合ブランチ: `release/vX.Y.Z`
-- 補助ブランチ: `feature/vX.Y.Z-<short-slug>`
-- release PR: `release/vX.Y.Z` から `master` へ作成する
-- `fix/vX.Y.Z-*`、`chore/vX.Y.Z-*`、`release-vX.Y.Z` は使わない
-- merge時に `--admin` は使わない
-- merge後はbranch hygieneを行う
+- default branch: `master`
+- release integration branch: `release/vX.Y.Z`
+- supporting branch: `feature/vX.Y.Z-<short-slug>`
+- release PR: from `release/vX.Y.Z` to `master`
+- do not use `fix/vX.Y.Z-*`, `chore/vX.Y.Z-*`, or `release-vX.Y.Z`
+- do not use `--admin` during merge
+- run branch hygiene after merge
 
-## リリース前の必須検証
+## Required Verification Before Release
 
-各change完了時:
+For each completed change:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -175,7 +175,7 @@ scripts/openspec validate "<change-name>" --strict
 just check
 ```
 
-`v0.1.0` 公開直前:
+Immediately before publishing `v0.1.0`:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -184,18 +184,18 @@ cargo package --locked --allow-dirty
 cargo publish --dry-run --locked --allow-dirty
 ```
 
-任意の構造確認:
+Optional structure inspection:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
 just harness-up
 ```
 
-## 進めないこと
+## Do Not Proceed With
 
-- 全change完了前に `v0.1.0` を公開しない
-- KMMに製品CLIを追加しない
-- KMMに製品UIを追加しない
-- KMMでHTML/PDF出力を担当しない
-- KMMでeditor-viewer同期制御を担当しない
-- downstream側の都合でKMM public DTOへparser内部型を漏らさない
+- publishing `v0.1.0` before all required changes are complete
+- adding a product CLI to KMM
+- adding a product UI to KMM
+- making KMM own HTML/PDF output
+- making KMM own editor-viewer synchronization control
+- leaking parser internals into KMM public DTOs for downstream convenience

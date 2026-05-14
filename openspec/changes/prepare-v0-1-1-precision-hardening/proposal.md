@@ -1,18 +1,18 @@
 ## Why
 
-`v0.1.0` はKMMの初回公開境界を固定するリリース（release）である。
+`v0.1.0` fixes KMM's initial public boundary.
 
-parser精度、metadata照合精度、同期anchor材料の追加は、公開境界を動かす可能性があるため `v0.1.0` には混ぜない。
+Parser precision, metadata matching precision, and additional synchronization anchor material can move the public boundary, so they are not mixed into `v0.1.0`.
 
-`v0.1.1` では、KDV、KLE、KatanAが `v0.1.0` を採用した結果から、KMM側で直すべき精度問題だけを小さく扱う。
+`v0.1.1` handles only the KMM-side precision issues found after KDV, KLE, and KatanA adopt `v0.1.0`.
 
 ## What Changes
 
-- `v0.1.1` を精度向上releaseとして計画する。
-- KMMの責務を解析、文書構造、source mapping、metadata解決、同期材料に限定したまま維持する。
-- downstream採用結果をfixture testへ落とし込んでから修正する。
-- footnote、image、link、HTML inline、math inlineの専用DTOが必要かを判断する。
-- metadata target移動判定と同期目印（anchor）材料の不足を、KMMの公開契約（public contract）内で改善する。
+- Plan `v0.1.1` as a precision-hardening release.
+- Keep KMM responsibility limited to parsing, document structure, source mapping, metadata resolution, and synchronization materials.
+- Convert downstream adoption findings into fixture tests before fixing implementation.
+- Decide whether footnote, image, link, HTML inline, or math inline needs dedicated DTOs.
+- Improve metadata target move detection and missing synchronization anchor material within KMM's public contract.
 
 ## Impact
 

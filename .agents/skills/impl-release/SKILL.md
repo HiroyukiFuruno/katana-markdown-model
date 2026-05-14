@@ -1,43 +1,43 @@
 ---
 name: impl-release
-description: katana-markdown-model で指定バージョンのOpenSpec実装、release準備、release PR、GitHub Release、crates.io公開、事後整理までを進めるときに使う。/impl-release vX.Y.Z 相当のKMM向けリリース実装ワークフロー。
+description: Use this for katana-markdown-model release implementation workflows, including OpenSpec implementation, release preparation, release PRs, GitHub Releases, crates.io publication, and post-release cleanup. Equivalent to /impl-release vX.Y.Z for KMM.
 ---
 
 # impl-release
 
-KMMの `vX.Y.Z` リリースを、実装から公開後整理まで進める入口です。
+This is the entry point for moving a KMM `vX.Y.Z` release from implementation through publication and cleanup.
 
-## 前提
+## Preconditions
 
-- 対象repositoryは `/Users/hiroyuki_furuno/works/private/katana-markdown-model`。
-- default branchは `master`。
-- KMMはlibrary-onlyです。CLI、UI、binary artifact、npm、PyPI、Homebrew、MCPB、editor extensionのrelease処理を持ち込みません。
-- 公開対象は `katana-markdown-model` crate、GitHub Release、`docs/release-notes/<version>.md` です。
-- release統合branchは `release/vX.Y.Z`、補助branchは `feature/vX.Y.Z-<short-slug>` に統一します。
-- release PRは `release/vX.Y.Z` から `master` へ作ります。
+- Target repository: `/Users/hiroyuki_furuno/works/private/katana-markdown-model`.
+- Default branch: `master`.
+- KMM is library-only. Do not bring in CLI, UI, binary artifact, npm, PyPI, Homebrew, MCPB, or editor extension release flows.
+- Publication targets are the `katana-markdown-model` crate, GitHub Release, and `docs/release-notes/<version>.md`.
+- Release integration branches use `release/vX.Y.Z`; support branches use `feature/vX.Y.Z-<short-slug>`.
+- Release PRs are created from `release/vX.Y.Z` to `master`.
 
-## 停止ルール
+## Stop Rules
 
-次に当たる場合は作業を止め、ユーザーに確認します。
+Stop and ask the user when any of these are true:
 
-- 指定versionが最新tag、GitHub Release、crates.io版から見て不自然に飛んでいる。
-- OpenSpec tasksにないAPI変更、公開DTO変更、互換性破壊、責務境界変更が必要になった。
-- KMMにCLI、描画、export、UI framework、downstream repository依存を追加しそうになった。
-- `CARGO_REGISTRY_TOKEN` や公開権限など、ユーザー側操作が必要な状態になった。
-- commit、push、merge、公開など、外部に見える操作へ進む前。
+- The requested version looks unnatural compared with the latest tag, GitHub Release, or crates.io version.
+- An API change, public DTO change, compatibility break, or responsibility-boundary change is needed but not covered by OpenSpec tasks.
+- The work would add CLI, rendering, export, UI framework, or downstream repository dependencies to KMM.
+- User-side setup or credentials are required, such as `CARGO_REGISTRY_TOKEN` or publication permission.
+- The next step is externally visible: commit, push, merge, or publish.
 
-## 参照するもの
+## References
 
-- `.agents/skills/openspec-apply-change/SKILL.md`: OpenSpec changeの実装。
-- `.agents/skills/lint-and-ast-lint/SKILL.md`: `just check` の品質gate確認。
-- `.agents/skills/self-review/SKILL.md`: handoff前の自己レビュー。
-- `.agents/skills/commit_and_push/SKILL.md`: ユーザー承認後のcommit/push。
-- `docs/release-runbook.md`: 公開手順。
-- `docs/quality-gates.md`: release前gate。
-- `docs/roadmap.md` と `docs/roadmap-v0.1.1.md`: release範囲と責務境界。
-- `branch-hygiene` skill: merge後、release後のbranch/worktree整理。
+- `.agents/skills/openspec-apply-change/SKILL.md`: OpenSpec change implementation.
+- `.agents/skills/lint-and-ast-lint/SKILL.md`: `just check` quality gate.
+- `.agents/skills/self-review/SKILL.md`: self-review before handoff.
+- `.agents/skills/commit_and_push/SKILL.md`: commit/push after user approval.
+- `docs/release-runbook.md`: publication procedure.
+- `docs/quality-gates.md`: release preflight gates.
+- `docs/roadmap.md` and `docs/roadmap-v0.1.1.md`: release scope and responsibility boundary.
+- `branch-hygiene` skill: branch/worktree cleanup after merge or release.
 
-## Phase 0: 状態把握
+## Phase 0: Inspect State
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -45,35 +45,35 @@ git status --short --branch
 git fetch origin --prune --tags
 ```
 
-確認すること:
+Check:
 
-- 既存差分を混ぜない。
-- `Cargo.toml` のversionが対象versionと一致するか。
-- 最新tag、最新GitHub Release、crates.io最新versionから見て、指定versionが自然な次版か。
-- `docs/release-notes/vX.Y.Z.md` があるか。
-- 対象versionのOpenSpec changeがあるか。
+- do not mix existing unrelated diffs
+- whether `Cargo.toml` version matches the target version
+- whether the requested version is the natural next version compared with tags, GitHub Releases, and crates.io
+- whether `docs/release-notes/vX.Y.Z.md` exists
+- whether an OpenSpec change exists for the target version
 
-versionが不自然な場合は、ユーザー指定を正として扱わず停止します。
+If the version looks unnatural, do not treat the user request as automatically correct. Stop and ask.
 
-## Phase 1: 実装
+## Phase 1: Implement
 
-1. `release/vX.Y.Z` を作るか、既存の同名branchを継続します。
-2. 対象OpenSpec changeの `proposal.md`、`design.md`、`tasks.md`、`specs/**/spec.md` を読みます。
-3. `tasks.md` の未完了taskを上から実装します。
-4. bug fixは回帰testを先に追加します。
-5. 新しい判断、制約、未解決事項はOpenSpecまたはrelease関連docsへ日本語で記録します。
-6. task完了直後に `tasks.md` のcheckboxを更新します。
+1. Create `release/vX.Y.Z` or continue the existing branch.
+2. Read `proposal.md`, `design.md`, `tasks.md`, and `specs/**/spec.md` for the target OpenSpec change.
+3. Implement pending tasks from `tasks.md` in order.
+4. For bug fixes, add the regression test first.
+5. Record new decisions, constraints, and unresolved items in OpenSpec or release docs.
+6. Update task checkboxes immediately after completing each task.
 
-KMMの責務境界:
+KMM responsibility boundary:
 
-- 第三者parser ASTをpublic contractへ出さない。
-- KatanA、KCF、KDV、KLE、UI frameworkへ依存しない。
-- 描画、export、scroll、selection、highlight制御をKMMへ入れない。
-- fixture testをrelease判断の正本にする。
+- Do not expose third-party parser ASTs through the public contract.
+- Do not depend on KatanA, KCF, KDV, KLE, or UI frameworks.
+- Do not add rendering, export, scroll, selection, or highlight control to KMM.
+- Treat fixture tests as the source of truth for release decisions.
 
-## Phase 2: 検証
+## Phase 2: Verify
 
-対象changeごとに実行します。
+Run this for each target change:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -81,30 +81,30 @@ scripts/openspec validate "<change-name>" --strict
 just check
 ```
 
-release PR前に実行します。
+Run this before the release PR:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
 just release-check
 ```
 
-`just release-check` は `just check`、`cargo package --locked --allow-dirty`、`cargo publish --dry-run --locked --allow-dirty` を含みます。
+`just release-check` includes `just check`, `cargo package --locked --allow-dirty`, and `cargo publish --dry-run --locked --allow-dirty`.
 
-失敗した検証をskipしません。lint除外、hook回避、`--no-verify` は使いません。
+Do not skip failed verification. Do not bypass lint, hooks, or checks with exclusions or `--no-verify`.
 
-## Phase 3: release PR準備
+## Phase 3: Prepare Release PR
 
-確認対象:
+Check:
 
-- `Cargo.toml` のversion。
-- `Cargo.lock` が必要な場合の更新。
-- `docs/release-notes/vX.Y.Z.md`。
-- `docs/release-readiness/<version>-*.md`。
-- 完了したOpenSpec changeのarchive。
+- `Cargo.toml` version
+- `Cargo.lock` update, if needed
+- `docs/release-notes/vX.Y.Z.md`
+- `docs/release-readiness/<version>-*.md`
+- completed OpenSpec changes are archived
 
-PR作成前にユーザーへ、変更内容と検証結果を報告して停止します。
+Before creating the PR, report the changes and verification results to the user and stop.
 
-ユーザー承認後、PRは次の形で作ります。
+After user approval, create the PR:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -112,20 +112,20 @@ git push -u origin release/vX.Y.Z
 gh pr create --base master --head release/vX.Y.Z --title "Prepare vX.Y.Z release"
 ```
 
-PR本文には、公開未実施であること、`just release-check` の結果、fixture test結果、任意の構造確認結果を書きます。
+The PR body must state that publication has not been performed yet, and include `just release-check`, fixture-test, and optional structure-inspection results.
 
-## Phase 4: merge前確認
+## Phase 4: Pre-Merge Check
 
-merge前に確認します。
+Before merge, verify:
 
-- `release-preflight` が通っている。
-- `Test and Build (macos-latest)` が通っている。
-- `Test and Build (ubuntu-latest)` が通っている。
-- `Test and Build (windows-latest)` が通っている。
-- review commentが残っていない。
-- `--admin` を使わない。
+- `release-preflight` passes
+- `Test and Build (macos-latest)` passes
+- `Test and Build (ubuntu-latest)` passes
+- `Test and Build (windows-latest)` passes
+- no review comments remain unresolved
+- `--admin` is not used
 
-mergeはユーザー承認後にだけ行います。
+Merge only after user approval.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -134,20 +134,20 @@ git switch master
 git pull --ff-only origin master
 ```
 
-## Phase 5: 公開
+## Phase 5: Publish
 
-公開は、PRが `master` へmergeされた後にだけ行います。
+Publish only after the PR has been merged into `master`.
 
-GitHub Actionsの `release` workflowを `master` から手動実行します。
+Manually dispatch the GitHub Actions `release` workflow from `master`.
 
 - `version`: `vX.Y.Z`
 - `publish_crate`: `true`
 
-Actionsが使えない場合だけ、`docs/release-runbook.md` の手動公開手順を使います。
+Use the manual path in `docs/release-runbook.md` only if GitHub Actions cannot be used.
 
-公開前に、`CARGO_REGISTRY_TOKEN` がGitHub secretとして登録済みか確認します。
+Before publication, confirm that `CARGO_REGISTRY_TOKEN` is registered as a GitHub secret.
 
-## Phase 6: 公開後verify
+## Phase 6: Verify Publication
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -156,33 +156,33 @@ cargo search katana-markdown-model --limit 1
 cargo info katana-markdown-model@X.Y.Z
 ```
 
-crates.io公開済みversionは再利用しません。
+Do not reuse a crates.io version that has already been published.
 
-- crates.io公開前に失敗した場合は、修正後に同じversionで再実行できます。
-- crates.io公開後にGitHub Release作成だけ失敗した場合は、同じtagでGitHub Release作成を再実行します。
-- crates.io公開後に内容不備が見つかった場合は、次のpatch versionで修正します。
+- If failure occurs before crates.io publication, fix it and rerun the same version.
+- If only GitHub Release creation fails after crates.io publication, recreate the GitHub Release with the same tag.
+- If a content issue is found after crates.io publication, fix it in the next patch version.
 
-## Phase 7: 事後整理
+## Phase 7: Cleanup
 
-`branch-hygiene` skillを使います。
+Use the `branch-hygiene` skill.
 
-報告すること:
+Report:
 
-- GitHub Release URL。
-- crates.io version。
-- 削除したlocal branch。
-- 削除したremote branch。
-- 削除したworktree。
-- 残したbranchと理由。
-- 次versionへ回す課題。
+- GitHub Release URL
+- crates.io version
+- deleted local branches
+- deleted remote branches
+- deleted worktrees
+- retained branches and reasons
+- issues deferred to the next version
 
-## 完了条件
+## Completion Conditions
 
-- 対象OpenSpec changeのtaskが完了している。
-- `scripts/openspec validate "<change-name>" --strict` が通っている。
-- `just check` が通っている。
-- `just release-check` が通っている。
-- release PRが `master` にmergeされている。
-- GitHub Actionsの `release` workflowが成功している。
-- GitHub Releaseとcrates.ioの公開後verifyが通っている。
-- branch hygieneが完了している。
+- target OpenSpec tasks are complete
+- `scripts/openspec validate "<change-name>" --strict` passes
+- `just check` passes
+- `just release-check` passes
+- release PR is merged into `master`
+- GitHub Actions `release` workflow succeeds
+- GitHub Release and crates.io post-publication verification passes
+- branch hygiene is complete

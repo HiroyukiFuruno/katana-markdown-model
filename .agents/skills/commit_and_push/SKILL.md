@@ -1,15 +1,15 @@
 ---
 name: commit_and_push
-description: katana-markdown-model の変更を検証後にcommitとpushへ進める。
+description: Commit and push katana-markdown-model changes after verification.
 ---
 
 # Commit And Push
 
-## 前提
+## Preconditions
 
-ユーザーがcommitまたはpushを明示している場合だけ実行します。
+Run this only when the user explicitly asks to commit or push.
 
-## 手順
+## Steps
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -18,10 +18,10 @@ git diff --stat
 just check
 ```
 
-検証が通ったら、関心事ごとにstageしてcommitします。
+After verification passes, stage and commit by concern.
 
-## 禁止
+## Prohibited
 
-- `--no-verify` によるhook回避
-- 失敗したlint、AST lint、test、OpenSpec検証の無視
-- 無関係な未追跡ファイルの混入
+- bypassing hooks with `--no-verify`
+- ignoring failed lint, AST lint, tests, or OpenSpec validation
+- mixing unrelated untracked files into the commit

@@ -1,62 +1,62 @@
 # Manual Harness
 
-## 結論
+## Summary
 
-`just harness-up` は、KMMの出力構造を人間が補助的に確認するための開発用入口である。
+`just harness-up` is a development-only entry point for human inspection of KMM output structure.
 
-これは製品CLIでも製品UIでもない。KMM本体はlibrary-onlyを維持する。
+It is not a product CLI or product UI. KMM remains library-only.
 
-release判定の正本はfixture testである。harnessはMarkdown描画、viewer、exportの確認には使わない。
+Fixture tests are the authoritative release gate. The harness is not used for validating Markdown rendering, viewer behavior, or export behavior.
 
-## 画面で確認するもの
+## What the Screen Shows
 
-画面に次を表示する。
+The screen shows:
 
-- Markdown入力
-- KMM node一覧
-- 選択nodeのsource range
-- 選択nodeのline-column
-- 選択nodeのraw snippet
-- 選択nodeのfingerprint
-- metadata解決状態
+- Markdown input
+- KMM node list
+- selected node source range
+- selected node line-column position
+- selected node raw snippet
+- selected node fingerprint
+- metadata resolution state
 
-metadata解決状態は `Resolved`、`Moved`、`Unresolved`、`Conflict` を同じ画面で確認する。
+Metadata resolution states show `Resolved`, `Moved`, `Unresolved`, and `Conflict` on the same screen.
 
-## 起動方法
+## Start
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
 just harness-up
 ```
 
-既定では次のKatanA fixtureを表示する。
+By default, it opens this KatanA fixture:
 
 ```text
 /Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample.md
 ```
 
-別のMarkdownを確認する場合は、引数で指定する。
+Pass a path to inspect another Markdown file.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
 just harness-up /Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample.md
 ```
 
-## fixture確認手順
+## Fixture Inspection Procedure
 
-1. Markdown入力にKatanA `sample.md` の内容が表示されることを確認する。
-2. node一覧にheading、alert、table、description list、diagram、math、emojiが表示されることを確認する。
-3. nodeを選択し、source range、line-column、raw snippet、fingerprintが表示されることを確認する。
-4. metadata解決状態に `Resolved`、`Moved`、`Unresolved`、`Conflict` が表示されることを確認する。
-5. 確認結果を `docs/release-readiness/<version>-manual-harness.md` に記録する。
+1. Confirm that the Markdown input shows KatanA `sample.md`.
+2. Confirm that the node list includes headings, alerts, tables, description lists, diagrams, math, and emoji.
+3. Select a node and confirm source range, line-column position, raw snippet, and fingerprint.
+4. Confirm that metadata resolution states include `Resolved`, `Moved`, `Unresolved`, and `Conflict`.
+5. Record the result in `docs/release-readiness/<version>-manual-harness.md`.
 
-## package確認
+## Package Check
 
-公開crateへharnessを混入させないため、release前に次を実行する。
+Before release, verify that the development harness is not included in the published crate.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
 cargo package --locked --allow-dirty --list
 ```
 
-出力に `tools/manual-harness` が含まれていないことを確認する。
+The output must not include `tools/manual-harness`.

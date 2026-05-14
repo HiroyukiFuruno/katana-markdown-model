@@ -1,14 +1,14 @@
 # Parser Adapter Strategy
 
-## 結論
+## Summary
 
-`v0.1.0` では現行parserを維持する。
+`v0.1.0` keeps the current parser.
 
-目的はCommonMark完全準拠ではなく、KMM public DTOとsource mapping契約を固定することである。parser engineの差し替えは後続で検討できるが、public contractとcontract testを壊してはならない。
+The goal is not full CommonMark coverage. The goal is to fix the KMM public DTO and source-mapping contract. A later parser-engine replacement is possible, but it must not break the public contract or contract tests.
 
-## 境界
+## Boundary
 
-KMMのpublic APIはKMM所有DTOだけを返す。
+KMM public APIs return only KMM-owned DTOs.
 
 - `KmmDocument`
 - `KmmNode`
@@ -17,36 +17,36 @@ KMMのpublic APIはKMM所有DTOだけを返す。
 - `MetadataDocument`
 - `TargetResolution`
 
-`src/parser/**` は内部実装である。downstreamはparser内部型へ依存しない。
+`src/parser/**` is internal implementation. Downstream repositories must not depend on parser internals.
 
-## v0.1.0で固定するparse contract
+## Parse Contract Fixed in v0.1.0
 
-- tableはrow、cell、alignment、cell source rangeを保持する
-- README badge rowは `HtmlBlockRole::BadgeRow` として保持する
-- centered HTML blockは `HtmlBlockRole::Centered` として保持する
-- legacy note blockとGFM alert blockは `Alert` labelを保持する
-- description listはtermとdescriptionを保持する
-- footnote記法は専用DTO化しないが、paragraph raw snippetとして保持する
-- Mermaid、PlantUML、DrawIoはdiagram code blockとして保持する
-- math fenced blockはmath code blockとして保持する
-- inline mathは専用DTO化しないが、paragraph raw snippetとして保持する
-- Unicode emojiとshortcode emojiはKMM nodeとして保持する
+- tables preserve rows, cells, alignment, and cell source ranges
+- README badge rows are preserved as `HtmlBlockRole::BadgeRow`
+- centered HTML blocks are preserved as `HtmlBlockRole::Centered`
+- legacy note blocks and GFM alert blocks preserve the `Alert` label
+- description lists preserve terms and descriptions
+- footnote syntax is not modeled by a dedicated DTO, but remains in paragraph raw snippets
+- Mermaid, PlantUML, and DrawIo are preserved as diagram code blocks
+- math fenced blocks are preserved as math code blocks
+- inline math is not modeled by a dedicated DTO, but remains in paragraph raw snippets
+- Unicode emoji and shortcode emoji are preserved in KMM nodes
 
-## parser候補評価
+## Parser Candidate Evaluation
 
-現時点では、Comrak、pulldown-cmark、markdown-rsなどのthird-party parserを採用しない。
+KMM does not currently adopt third-party parsers such as Comrak, pulldown-cmark, or markdown-rs.
 
-理由は、次の条件をKMMのcanonical fixtureとcontract testで確認してからでないと、差し替えによる退行を判断できないためである。
+Any replacement parser must first be evaluated against canonical fixtures and contract tests for these conditions:
 
-- source rangeとraw snippetをKMMの `SourceSpan` に安定して変換できる
-- README badge、alert、description list、table、diagram、mathを壊さない
-- Unicode emojiとshortcode emojiを削除しない
-- parser AST型をpublic APIへ漏らさない
-- OSやfontに依存して文書モデルが変わらない
+- stable conversion of source ranges and raw snippets into KMM `SourceSpan`
+- no regression for README badges, alerts, description lists, tables, diagrams, or math
+- Unicode emoji and shortcode emoji are preserved
+- parser AST types do not leak into public APIs
+- the document model does not vary by OS or font
 
-## 差し替え条件
+## Replacement Conditions
 
-parser engineを差し替える場合は、先に次を満たす。
+Before replacing the parser engine, run:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -55,4 +55,4 @@ cargo test --test canonical_fixtures --locked
 just check
 ```
 
-この検証に失敗するparser候補は採用しない。
+Parser candidates that fail this verification are rejected.

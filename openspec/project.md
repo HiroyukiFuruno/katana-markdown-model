@@ -2,29 +2,29 @@
 
 ## Project
 
-`katana-markdown-model`（KMM）は、KatanA ecosystem のMarkdown文書モデル、外部メタデータ（metadata）、位置解決を担うlibrary。
+`katana-markdown-model` (KMM) owns the Markdown document model, external metadata, and source-position resolution for the KatanA ecosystem.
 
-KMMはHTML変換器ではない。KatanA、katana-document-viewer、katana-language-editor、katana-canvas-forge が同じMarkdown解釈を共有するための中核である。
+KMM is not an HTML converter. It is the shared interpretation layer used by KatanA, katana-document-viewer, katana-language-editor, and katana-canvas-forge.
 
-分離優先順位はP1。P0 `katana-ast-lint` による共通品質ゲートを前提にする。
+KMM is the P1 separation target and assumes the shared P0 quality gate provided by `katana-ast-lint`.
 
 ## Design Principles
 
-- KMMはKCF、KDV、KatanA、editorへ依存しない。
-- KMM固有の一時AST lintを作らず、`katana-ast-lint` の共通ruleとadapterを使う。
-- 既存Markdown libraryのASTをpublic contractにしない。
-- Markdown本文へKatanA専用metadataを埋め込まない。
-- 現在KatanAで実現できているMarkdown挙動をv0互換ラインにする。
-- 絵文字は削除しない。Unicodeとshortcode情報を保持し、描画は利用側へ委譲する。
-- Mermaid、draw.io、PlantUML、mathの描画はKCFへ委譲できる構造として保持し、KMMでは描画しない。
-- editor-viewer同期制御はKatanAが所有する。KMMは同期制御を持たず、同期に使えるnode id、source range、line-column、raw snippet、fingerprintを返す。
+- KMM does not depend on KCF, KDV, KatanA, or editor implementations.
+- KMM does not introduce repository-local temporary AST lint; it uses shared `katana-ast-lint` rules and adapters.
+- Existing Markdown library ASTs do not become public contracts.
+- KatanA-specific metadata is not embedded into Markdown content.
+- Current KatanA Markdown behavior defines the v0 compatibility line.
+- Emoji is not removed. KMM preserves Unicode and shortcode information, while rendering remains the consumer's responsibility.
+- Mermaid, draw.io, PlantUML, and math are preserved in a structure that KCF can render; KMM does not render them.
+- KatanA owns editor-viewer synchronization control. KMM does not synchronize anything; it returns node ids, source ranges, line-column positions, raw snippets, and fingerprints that consumers can use.
 
 ## Canonical Fixtures
 
 - `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample.md`
-- `/Users/hiroyuki_furuno/works/private/katana/README.md` 冒頭のbadge列
-- `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample_basic.md` のalert記法
-- description list fixture
+- badge row at the beginning of `/Users/hiroyuki_furuno/works/private/katana/README.md`
+- alert syntax in `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample_basic.md`
+- description-list fixture
 
 ## Consumers
 

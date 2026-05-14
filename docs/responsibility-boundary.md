@@ -1,54 +1,54 @@
 # KMM Responsibility Boundary
 
-## 結論
+## Summary
 
-KMMはMarkdownを解析し、KatanA ecosystemで共有する文書構造、source mapping、metadata target解決を返すlibraryである。
+KMM parses Markdown and returns shared document structure, source mapping, and metadata target resolution for the KatanA ecosystem.
 
-KMMは描画、export、editor-viewer同期制御を持たない。同期制御は常に利用側アプリであるKatanAが担い、KatanAがviewerやeditorへ命令する。
+KMM does not own rendering, export, or editor-viewer synchronization control. Synchronization control always belongs to the consuming application, KatanA, which sends commands to viewers or editors.
 
-## KMMが所有するもの
+## KMM Owns
 
 - Markdown document model
 - stable node id
 - source range
-- line-column
+- line-column position
 - raw snippet
 - text fingerprint
 - metadata schema
 - metadata target resolution
 - parser adapter boundary
 
-これらは、KLEの保存時metadata同期、KDVのviewer/export、KatanAのeditor-viewer同期に使える材料である。
+These are materials for KLE save-time metadata reconciliation, KDV viewer/export behavior, and KatanA editor-viewer synchronization.
 
-## KMMが所有しないもの
+## KMM Does Not Own
 
-- Markdown描画
+- Markdown rendering
 - Floem widget
 - viewer state
 - editor state
 - scroll state
 - viewport
-- hit-test方針
+- hit-test policy
 - HTML/PDF/PNG/JPG export
-- Mermaid / Draw.io / PlantUML / math の外部描画
+- external rendering for Mermaid, Draw.io, PlantUML, or math
 - KatanA workspace state
 
-## Repository境界
+## Repository Boundary
 
-| repository | 責務 |
+| repository | responsibility |
 | --- | --- |
-| `katana-markdown-model` | Markdown解析、文書構造、source mapping、metadata target解決 |
-| `katana-document-viewer` | KMM DTOを入力にしたviewer、hit-test、HTML/PDF/PNG/JPG export |
-| `katana-canvas-forge` | Mermaid / Draw.io / PlantUML / math 等の外部描画 |
-| `katana-language-editor` | 編集面と保存時metadata同期 |
-| `katana` | viewer/editor/export統合、editor-viewer同期制御 |
+| `katana-markdown-model` | Markdown parsing, document structure, source mapping, metadata target resolution |
+| `katana-document-viewer` | viewer, hit-test, and HTML/PDF/PNG/JPG export from KMM DTOs |
+| `katana-canvas-forge` | external rendering for Mermaid, Draw.io, PlantUML, and math |
+| `katana-language-editor` | editing surface and save-time metadata reconciliation |
+| `katana` | viewer/editor/export integration and editor-viewer synchronization control |
 
-`katana-document-preview` は未リリース・未取り込みのため、計画上は `katana-document-viewer`（KDV）へ改名する。
+`katana-document-preview` is unreleased and not adopted, so the planned repository name is `katana-document-viewer` (KDV).
 
-## 同期境界
+## Synchronization Boundary
 
-KMMは同期を実行しない。
+KMM does not perform synchronization.
 
-KMMはKatanAが同期判断に使えるnode id、source range、line-column、raw snippet、fingerprintを安定して返す。
+KMM returns stable node id, source range, line-column position, raw snippet, and fingerprint data that KatanA can use for synchronization decisions.
 
-KatanAはその情報を使い、viewerまたはeditorへscroll、selection、highlightなどの命令を送る。KMMはviewer、editor、KatanAの統合状態を知らない。
+KatanA uses that data to send scroll, selection, or highlight commands to viewers or editors. KMM does not know viewer state, editor state, or KatanA integration state.

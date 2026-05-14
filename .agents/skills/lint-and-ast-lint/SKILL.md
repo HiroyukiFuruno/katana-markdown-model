@@ -1,20 +1,20 @@
 ---
 name: lint-and-ast-lint
-description: katana-markdown-model の通常lint、KAL AST lint、test、OpenSpec検証を実行する。
+description: Run katana-markdown-model lint, KAL AST lint, tests, and OpenSpec validation.
 ---
 
 # Lint And AST Lint
 
-KMMの品質ゲートを確認します。
+Use this skill to verify the KMM quality gate.
 
-## 実行順序
+## Execution Order
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
 just check
 ```
 
-`just check` は以下を実行します。
+`just check` runs:
 
 - `cargo fmt --all -- --check`
 - `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings`
@@ -22,8 +22,8 @@ just check
 - `cargo test --workspace --locked`
 - `scripts/openspec validate <active-change> --strict`
 
-## ルール
+## Rules
 
-- 失敗した検査をskipしない。
-- AST lintは `katana-ast-lint` を使う。
-- KMM固有の一時lintや除外設定で代替しない。
+- Do not skip failed checks.
+- AST lint uses `katana-ast-lint`.
+- Do not replace the shared gate with KMM-local temporary lint rules or exclusions.

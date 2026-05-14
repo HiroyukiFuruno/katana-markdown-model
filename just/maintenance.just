@@ -2,24 +2,24 @@
 # Maintenance
 # ============================================================
 
-# 古いビルド成果物を掃除する（7日より古いものだけ）
+# Sweep old build artifacts older than 7 days
 sweep:
     @{{CARGO}} sweep --time 7 || true
 
-# ビルド成果物を削除する
+# Remove build artifacts
 clean: sweep
     {{CARGO}} clean
 
-# Cargo.toml の互換範囲内で依存クレートを更新する
+# Update dependency crates within Cargo.toml-compatible ranges
 update-safe:
     {{CARGO}} update
 
-# 依存クレートを最新版へ更新し、Cargo.lock も更新する
+# Upgrade dependency crates to the latest versions and update Cargo.lock
 update:
     {{CARGO}} upgrade -i
     {{CARGO}} update
 
-# 古い依存クレートを確認する（cargo-outdated が必要）
+# List outdated dependency crates; requires cargo-outdated
 outdated:
     @cp Cargo.toml Cargo.toml.bak
     @sed -e '/^\[patch\.crates-io\]/,$d' Cargo.toml.bak > Cargo.toml

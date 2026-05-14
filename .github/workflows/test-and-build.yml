@@ -48,7 +48,7 @@ env:
 jobs:
   test:
     name: Test and Build
-    # WHY: PR branchで通過済みのmerge commitでは重複CIを避け、masterへの直接pushでは必ず確認する。
+    # WHY: Avoid duplicate CI for merge commits already checked on PR branches, while still checking direct pushes to master.
     if: >-
       github.event_name != 'push' || (
         !startsWith(github.event.head_commit.message, 'Merge pull request ') &&

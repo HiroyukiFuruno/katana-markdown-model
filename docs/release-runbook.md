@@ -1,12 +1,12 @@
 # v0.1.0 Release Runbook
 
-## 結論
+## Summary
 
-`v0.1.0` は、`release/v0.1.0` のPRが `master` へmergeされた後にだけ公開する。
+Publish `v0.1.0` only after the release PR has been merged into `master`.
 
-このPRでは公開しない。
+The release PR itself does not publish.
 
-## release PR
+## Release PR
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -16,11 +16,11 @@ git push -u origin release/v0.1.0
 gh pr create --base master --head release/v0.1.0
 ```
 
-PR本文には、実公開が未実施であること、`just release-check` の結果、fixture testと任意の構造確認結果を明記する。
+The PR body must state that publication has not been performed yet. It must also include the `just release-check` result, fixture-test evidence, and any optional structure-inspection evidence.
 
-## secret登録
+## Secret Registration
 
-crates.io公開には、GitHub secretの `CARGO_REGISTRY_TOKEN` が必要である。
+Publishing to crates.io requires the `CARGO_REGISTRY_TOKEN` GitHub secret.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -30,7 +30,7 @@ gh secret set CARGO_REGISTRY_TOKEN \
 gh secret list --repo HiroyukiFuruno/katana-markdown-model | rg '^CARGO_REGISTRY_TOKEN'
 ```
 
-## merge前確認
+## Pre-Merge Checks
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -40,20 +40,20 @@ just release-check
 just harness-up
 ```
 
-`just harness-up` は任意の構造確認補助である。release判断はfixture testと `just release-check` を正本にする。
+`just harness-up` is an optional structure-inspection aid. Fixture tests and `just release-check` remain the authoritative release gates.
 
-## GitHub Actionsでの公開
+## Publication Through GitHub Actions
 
-PR merge後、GitHub Actionsの `release` workflowを `master` から手動実行する。
+After the PR is merged, manually dispatch the `release` workflow from `master`.
 
 - `version`: `v0.1.0`
 - `publish_crate`: `true`
 
-`publish_crate=false` の場合は、`just release-check` だけを実行し、GitHub Releaseとcrates.io公開は行わない。
+When `publish_crate=false`, the workflow runs `just release-check` only. It does not create a GitHub Release or publish to crates.io.
 
-## 手動公開の代替手順
+## Manual Fallback
 
-GitHub Actionsが使えない場合だけ、次を手動で実行する。
+Use this path only if GitHub Actions cannot be used.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -68,15 +68,15 @@ gh release create v0.1.0 \
   --notes-file docs/release-notes/v0.1.0.md
 ```
 
-## 失敗時方針
+## Failure Policy
 
-crates.ioへ公開済みのversionは再利用しない。
+Do not reuse a version that has already been published to crates.io.
 
-- crates.io公開前に失敗した場合: 修正後に同じ `v0.1.0` で再実行できる
-- crates.io公開後にGitHub Release作成だけ失敗した場合: 同じtagでGitHub Release作成を再実行する
-- crates.io公開後に内容不備が見つかった場合: `v0.1.1` 以降で修正する
+- If publication fails before crates.io upload, fix the issue and rerun the same `v0.1.0` release.
+- If GitHub Release creation fails after crates.io publication, recreate the GitHub Release with the same tag.
+- If a content issue is found after crates.io publication, fix it in the next patch version.
 
-## 公開後verify
+## Post-Publication Verification
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -85,9 +85,9 @@ cargo search katana-markdown-model --limit 1
 cargo info katana-markdown-model@0.1.0
 ```
 
-## branch hygiene
+## Branch Hygiene
 
-release後は、local branch、remote branch、worktreeを確認して整理する。
+After release, inspect and clean local branches, remote branches, and worktrees.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -99,4 +99,4 @@ git branch -d release/v0.1.0
 git push origin --delete release/v0.1.0
 ```
 
-remote branchをPR merge時に削除済みの場合、`git push origin --delete release/v0.1.0` は不要である。
+If the remote release branch was already deleted by PR merge, `git push origin --delete release/v0.1.0` is unnecessary.

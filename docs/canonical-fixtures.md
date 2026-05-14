@@ -1,23 +1,23 @@
 # Canonical Fixtures
 
-## 結論
+## Summary
 
-KMMのcanonical fixtureは、KatanA現行挙動をKMM内で再現するための正本である。
+KMM canonical fixtures are the source of truth for reproducing current KatanA behavior inside KMM.
 
-標準テストは `/Users/hiroyuki_furuno/works/private/katana` の絶対パスへ依存しない。KatanA側の現行fixtureを確認したうえで、KMM repository内の `tests/fixtures/canonical/` に同期したファイルをテスト入力にする。
+Standard tests must not depend on absolute paths under `/Users/hiroyuki_furuno/works/private/katana`. After reviewing current KatanA fixtures, sync the needed inputs into `tests/fixtures/canonical/` in this repository and use the synced files as test inputs.
 
-## 同期元と同期先
+## Sources and Destinations
 
-| 同期元 | 同期先 | 用途 |
+| source | destination | purpose |
 | --- | --- | --- |
-| `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample.md` | `tests/fixtures/canonical/katana_sample.md` | KatanA現行の総合Markdown fixture |
-| `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample_basic.md` | `tests/fixtures/canonical/katana_sample_basic.md` | 基本Markdownとalert fixture |
-| `/Users/hiroyuki_furuno/works/private/katana/README.md` | `tests/fixtures/canonical/katana_readme.md` | README headerとbadge列 |
-| `tests/fixtures/description_list.md` | `tests/fixtures/canonical/description_list.md` | description list正本 |
+| `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample.md` | `tests/fixtures/canonical/katana_sample.md` | comprehensive current KatanA Markdown fixture |
+| `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample_basic.md` | `tests/fixtures/canonical/katana_sample_basic.md` | basic Markdown and alert fixture |
+| `/Users/hiroyuki_furuno/works/private/katana/README.md` | `tests/fixtures/canonical/katana_readme.md` | README header and badge row |
+| `tests/fixtures/description_list.md` | `tests/fixtures/canonical/description_list.md` | description-list source of truth |
 
-## 同期手順
+## Sync Procedure
 
-KatanA側fixtureの更新をKMMへ取り込む場合は、差分を確認してから同期する。
+When importing KatanA fixture updates into KMM, inspect the diff before syncing.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -27,7 +27,7 @@ cp /Users/hiroyuki_furuno/works/private/katana/README.md tests/fixtures/canonica
 cp tests/fixtures/description_list.md tests/fixtures/canonical/description_list.md
 ```
 
-同期後は次を実行する。
+After syncing, run:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -35,33 +35,33 @@ scripts/openspec validate "stabilize-canonical-fixtures" --strict
 just check
 ```
 
-## 期待する主要構造
+## Expected Major Structures
 
-`katana_sample.md` は次を固定する。
+`katana_sample.md` fixes:
 
 - heading
 - centered HTML block
 - README badge row
-- listとtask marker
+- lists and task markers
 - code block
 - Mermaid / PlantUML / DrawIo / math code block
-- tableとalignment
+- table and alignment
 - blockquote
 - legacy note block
 - thematic break
 - emoji
 
-`katana_sample_basic.md` は次を固定する。
+`katana_sample_basic.md` fixes:
 
 - heading
-- listとtask marker
-- tableとalignment
+- lists and task markers
+- table and alignment
 - legacy note block
 - GFM alert block
-- footnote記法を含むparagraph
-- special characterとemoji
+- paragraph containing footnote syntax
+- special characters and emoji
 
-`katana_readme.md` は次を固定する。
+`katana_readme.md` fixes:
 
 - centered icon block
 - centered heading
@@ -70,15 +70,15 @@ just check
 - badge row
 - language selector
 
-`description_list.md` は次を固定する。
+`description_list.md` fixes:
 
 - term
 - description
-- description list node
+- description-list node
 
-## 現時点で構造化対象外の要素
+## Elements Not Structured Yet
 
-次の要素はcanonical fixtureに含めるが、`stabilize-canonical-fixtures` では専用DTOへ固定しない。
+The following elements are included in canonical fixtures but are not fixed as dedicated DTOs by `stabilize-canonical-fixtures`:
 
 - footnote
 - image
@@ -86,4 +86,4 @@ just check
 - HTML inline
 - math inline
 
-これらはraw snippet、source range、fingerprintを保持したうえで、後続のparser strategyまたはmetadata contractで必要に応じて専用DTO化する。
+They keep raw snippets, source ranges, and fingerprints. Later parser strategy or metadata contract changes can add dedicated DTOs if required.

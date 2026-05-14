@@ -5,7 +5,7 @@
 <h1 align="center">katana-markdown-model</h1>
 
 <p align="center">
-  KatanA系列（ecosystem）でMarkdown文書モデル、外部メタデータ、位置解決を共有するための描画方式に依存しないライブラリ（renderer-neutral library）です。
+  A renderer-neutral Markdown document model library for sharing document structure, external metadata, and source-position resolution across the KatanA ecosystem.
 </p>
 
 <p align="center">
@@ -15,30 +15,30 @@
   <a href="https://crates.io/crates/katana-markdown-model"><img src="https://img.shields.io/crates/v/katana-markdown-model.svg" alt="crates.io"></a>
 </p>
 
-`katana-markdown-model`（KMM）は、KatanA系列（ecosystem）のMarkdown文書モデル、外部メタデータ（metadata）、位置解決を担うライブラリ（library）です。
+`katana-markdown-model` (KMM) owns the shared Markdown document model, external metadata contract, and source-position resolution used by the KatanA ecosystem.
 
-KMMはHTML変換器ではありません。KatanAの表示機能（viewer）、編集機能（editor）、出力機能（export）が同じ文書解釈を共有するための中核です。
+KMM is not an HTML converter. It provides the common interpretation layer used by KatanA viewers, editors, and export flows.
 
-分離優先順位ではP1です。P0 `katana-ast-lint` の共通品質ゲートを前提にして進めます。
+KMM is the P1 separation target and assumes the shared P0 quality gate provided by `katana-ast-lint`.
 
-## 初期方針
+## Initial Policy
 
-- KMM v0はMarkdown共通仕様（CommonMark）の完全準拠より、現在KatanAで実現できている挙動の踏襲を優先します。
-- 主な検証用入力（fixture）は `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample.md` です。
-- READMEバッジ（badge）、注意枠（alert）、説明リスト（description list）も必須の検証用入力（fixture）にします。
-- メタデータ（metadata）はMarkdown本文へ埋め込まず、外部ファイルとして扱います。
-- KMMはKCF、KDV、KatanA、editorへ依存しません。
-- KMM固有の一時lintを作らず、共通AST lintを品質ゲートにします。
+- KMM v0 prioritizes current KatanA-compatible behavior over full CommonMark coverage.
+- The primary fixture input is `/Users/hiroyuki_furuno/works/private/katana/assets/fixtures/sample.md`.
+- README badges, alerts, and description lists are required fixture inputs.
+- Metadata stays in external files and is not embedded into Markdown content.
+- KMM must not depend on KCF, KDV, KatanA, or editor implementations.
+- KMM must use the shared AST lint gate instead of repository-local temporary lint rules.
 
-## 開発入口
+## Development Entry Point
 
 ```bash
 just check
 ```
 
-`just check` は整形確認（format）、Clippy、KAL AST lint、テスト（test）、OpenSpec検証を実行します。
+`just check` runs formatting checks, Clippy, KAL AST lint, tests, and OpenSpec validation.
 
-## 最小利用例
+## Minimal Usage
 
 ```rust
 use katana_markdown_model::{KatanaMarkdownModel, MarkdownInput};
@@ -51,10 +51,10 @@ assert_eq!(document.nodes.len(), 2);
 # Ok::<(), katana_markdown_model::KmmError>(())
 ```
 
-## 現在の初期実装範囲
+## Current Initial Scope
 
-- 描画方式に依存しない（renderer-neutral） `KmmDocument` / `KmmNode` / `KmmNodeKind`
-- 位置範囲（source range）、行列位置（line-column）、元テキスト断片（raw snippet）、テキスト指紋（text fingerprint）
-- 見出し（heading）、段落（paragraph）、HTMLブロック（HTML block）、バッジ行（badge row）、リスト（list）、コードブロック（code block）、図表ブロック（diagram block）、表（table）、引用（blockquote）、注意枠（alert）、説明リスト（description list）
-- 外部メタデータ対象（metadata target）と再解決API
-- `katana-ast-lint` を使ったrepository AST lint
+- Renderer-neutral `KmmDocument`, `KmmNode`, and `KmmNodeKind`
+- Source ranges, line-column positions, raw snippets, and text fingerprints
+- Headings, paragraphs, HTML blocks, badge rows, lists, code blocks, diagram blocks, tables, blockquotes, alerts, and description lists
+- External metadata targets and target re-resolution APIs
+- Repository AST lint through `katana-ast-lint`

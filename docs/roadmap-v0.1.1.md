@@ -1,81 +1,81 @@
 # KMM v0.1.1 Roadmap
 
-## 結論
+## Summary
 
-`v0.1.1` は、`v0.1.0` で固定した公開契約（public contract）を壊さず、KDV、KLE、KatanA採用時に見つかった解析精度を小さく改善するリリース（release）である。
+`v0.1.1` is a precision-hardening release. It improves issues found during KDV, KLE, and KatanA adoption without breaking the public contract fixed in `v0.1.0`.
 
-KMMは描画、export、editor-viewer同期制御を持たない。この境界は `v0.1.1` でも変えない。
+KMM still does not own rendering, export, or editor-viewer synchronization control in `v0.1.1`.
 
-## 目的
+## Goal
 
-`v0.1.0` は初回公開境界を固定するリリース（release）である。
+`v0.1.0` fixed the initial public boundary.
 
-`v0.1.1` では、公開後の利用結果からKMM側で直すべき精度問題だけを扱う。
+`v0.1.1` handles only precision problems that should be fixed on the KMM side after downstream adoption.
 
-## 対象
+## Scope
 
-- canonical fixtureで見つかったsource range、line-column、raw snippet、fingerprintのズレ修正
-- footnote、image、link、HTML inline、math inlineの追加DTOが必要かの判断
-- metadata target移動判定の精度向上
-- KatanAのeditor-viewer同期で不足したanchor材料の追加検討
+- source range, line-column, raw snippet, and fingerprint drift found by canonical fixtures
+- decision on whether footnote, image, link, HTML inline, or math inline needs dedicated DTOs
+- metadata target move-detection precision improvements
+- evaluation of missing anchor material for KatanA editor-viewer synchronization
 
-## 対象外
+## Out of Scope
 
-- KMMによるMarkdown描画
+- Markdown rendering in KMM
 - HTML/PDF/PNG/JPG export
-- 製品CLI
-- 製品UI
+- product CLI
+- product UI
 - KatanA workspace state
-- viewerまたはeditorへのスクロール（scroll）、選択（selection）、強調表示（highlight）命令
-- KDV、KLE、KCF、KatanA本体への直接依存
+- scroll, selection, or highlight commands to viewers or editors
+- direct dependencies on KDV, KLE, KCF, or KatanA itself
 
-## 進め方
+## Process
 
-### 1. downstream採用結果の棚卸し
+### 1. Triage Downstream Adoption Results
 
-KDV、KLE、KatanAで `katana-markdown-model = "0.1.0"` を使った結果を集める。
+Collect adoption results from KDV, KLE, and KatanA using `katana-markdown-model = "0.1.0"`.
 
-KMMで扱うのは、KMM公開DTO（public DTO）、source mapping、metadata解決、同期材料に関する問題だけである。
+KMM handles only issues related to KMM public DTOs, source mapping, metadata resolution, or synchronization materials.
 
-### 2. fixtureで再現する
+### 2. Reproduce With Fixtures
 
-修正前に、KMM内のfixture testで問題を再現する。
+Before changing implementation, reproduce each issue with a fixture test inside KMM.
 
-絶対パスに依存するtestは追加しない。KatanA fixtureを使う場合は、KMM repository内の `tests/fixtures/canonical/` へ同期してから検証する。
+Do not add tests that depend on absolute paths. When using a KatanA fixture, sync it into `tests/fixtures/canonical/` in this repository first.
 
-### 3. 公開契約（public contract）を守って修正する
+### 3. Preserve the Public Contract
 
-第三者parser ASTをpublic DTOへ出さない。
+Do not expose third-party parser ASTs through public DTOs.
 
-新しいDTOを追加する場合は、KDV、KLE、KatanAが既存DTOでは扱えない理由をOpenSpecへ記録する。
+When adding a new DTO, record in OpenSpec why KDV, KLE, or KatanA cannot handle the case with existing DTOs.
 
-### 4. releaseする
+### 4. Release
 
-`v0.1.1` は `release/v0.1.1` でまとめ、`master` へリリース変更依頼（release PR）を作る。
+Collect `v0.1.1` on `release/v0.1.1` and create a release PR to `master`.
 
-公開前には `just release-check` を必須にする。
+Run `just release-check` before publication.
 
-## 完了条件
+## Completion Conditions
 
-- `prepare-v0-1-1-precision-hardening` のOpenSpec taskが完了している
-- 追加・修正した挙動がfixture testで固定されている
-- KMMがlibrary-onlyを維持している
-- 公開契約（public contract）に第三者parser ASTが漏れていない
-- KMMが描画、export、同期制御を持っていない
-- `just check` が通っている
-- `just release-check` が通っている
+- OpenSpec tasks in `prepare-v0-1-1-precision-hardening` are complete
+- added or changed behavior is fixed by fixture tests
+- KMM remains library-only
+- third-party parser ASTs do not leak into the public contract
+- KMM does not own rendering, export, or synchronization control
+- `just check` passes
+- `just release-check` passes
 
-## 判断基準
+## Decision Criteria
 
-`v0.1.1` で採用する修正は、次を満たすものに限定する。
+Fixes accepted for `v0.1.1` must satisfy all of the following:
 
-- downstream側の都合ではなく、KMMの解析結果またはmetadata解決結果に原因がある
-- fixtureで再現できる
-- 公開DTO（public DTO）の互換性を壊さない
-- KMMの責務境界を広げない
+- the root cause is in KMM parsing results or metadata resolution, not downstream convenience
+- the issue can be reproduced with a fixture
+- public DTO compatibility is preserved
+- KMM responsibility boundaries do not expand
 
-## 後続候補
+## Follow-Up Candidates
 
-`v0.1.1` で扱いきれない精度改善は、`v0.1.2` 以降へ分ける。
+Precision work that does not fit into `v0.1.1` moves to `v0.1.2` or later.
 
-対象を広げる場合も、まずOpenSpec changeを作り、KMMが持つ責務かどうかを確認する。
+If scope grows, create an OpenSpec change first and confirm that the responsibility belongs to KMM.

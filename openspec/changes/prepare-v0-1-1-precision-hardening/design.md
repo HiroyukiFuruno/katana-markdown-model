@@ -1,76 +1,76 @@
 ## Context
 
-KMM `v0.1.0` は、描画や同期制御ではなく、renderer-neutralな文書モデル、source mapping、metadata解決、同期に使える材料を公開する。
+KMM `v0.1.0` publishes renderer-neutral document models, source mapping, metadata resolution, and materials that can be used for synchronization. It does not publish rendering or synchronization control.
 
-KDV、KLE、KatanAが `v0.1.0` を採用すると、実際のMarkdown表示、保存時metadata同期、editor-viewer同期で不足が見つかる可能性がある。
+When KDV, KLE, and KatanA adopt `v0.1.0`, they may find gaps in real Markdown display, save-time metadata reconciliation, or editor-viewer synchronization.
 
-その不足をすべてKMMへ戻すのではなく、KMMの解析結果やpublic DTOが原因のものだけを `v0.1.1` で扱う。
+`v0.1.1` does not move every downstream gap back into KMM. It handles only issues caused by KMM parsing results or public DTOs.
 
 ## Goals
 
-- `v0.1.0` の公開契約（public contract）を壊さずに精度を上げる。
-- downstream採用結果をfixture testへ変換する。
-- source range、line-column、raw snippet、fingerprintのズレを回帰テスト化する。
-- metadata target移動判定の改善を、unresolved保持とconflict返却の契約を壊さずに行う。
-- 同期制御はKatanAに残したまま、KatanAが使えるanchor材料だけを必要最小限で追加する。
+- Improve precision without breaking the `v0.1.0` public contract.
+- Convert downstream adoption results into fixture tests.
+- Add regression tests for source range, line-column, raw snippet, and fingerprint drift.
+- Improve metadata target move detection without weakening the unresolved-preservation or conflict-return contracts.
+- Keep synchronization control in KatanA while adding only the minimal anchor material KatanA can use.
 
 ## Non-Goals
 
-- Markdown描画。
-- HTML/PDF/PNG/JPG export。
-- 製品CLI。
-- 製品UI。
-- KatanA workspace state。
-- viewerまたはeditorへのscroll、selection、highlight命令。
-- KDV、KLE、KCF、KatanA本体への依存追加。
-- CommonMark全仕様の一括実装。
+- Markdown rendering.
+- HTML/PDF/PNG/JPG export.
+- Product CLI.
+- Product UI.
+- KatanA workspace state.
+- Scroll, selection, or highlight commands to viewers or editors.
+- Dependencies on KDV, KLE, KCF, or KatanA itself.
+- One-shot implementation of the full CommonMark specification.
 
 ## Work Streams
 
-### 1. Downstream adoption triage
+### 1. Downstream Adoption Triage
 
-KDV、KLE、KatanAで `katana-markdown-model = "0.1.0"` を採用した結果を集める。
+Collect adoption results from KDV, KLE, and KatanA using `katana-markdown-model = "0.1.0"`.
 
-分類は次の4つにする。
+Classify each issue into one of four buckets:
 
-- KMM解析精度の問題
-- KMM metadata解決の問題
-- KMMが返す同期材料の不足
-- downstream側の責務として扱う問題
+- KMM parsing precision issue
+- KMM metadata resolution issue
+- missing synchronization material returned by KMM
+- issue owned by downstream responsibility
 
-KMMで扱わないものは、KMMのtaskへ混ぜない。
+Do not add issues outside KMM responsibility to KMM tasks.
 
-### 2. Fixture-first fixes
+### 2. Fixture-First Fixes
 
-修正前に、KMM内のfixture testで失敗を再現する。
+Before fixing implementation, reproduce the failure with a KMM fixture test.
 
-絶対パスに依存するtestは追加しない。KatanA fixtureを使う場合は、KMM repository内のcanonical fixtureへ同期したうえでtestにする。
+Do not add tests that depend on absolute paths. When using a KatanA fixture, sync it into this repository's canonical fixtures before testing.
 
-### 3. Markdown contract gaps
+### 3. Markdown Contract Gaps
 
-footnote、image、link、HTML inline、math inlineは、`v0.1.0` ではKatanA現行仕様として棚卸し済みである。
+Footnote, image, link, HTML inline, and math inline were triaged in `v0.1.0` as current KatanA behavior.
 
-`v0.1.1` では、downstreamが既存DTOでは扱えない場合だけ専用DTO化を検討する。専用DTOを追加する場合は、既存DTOを壊さず追加する。
+In `v0.1.1`, consider dedicated DTOs only if downstream repositories cannot handle the case with existing DTOs. If a dedicated DTO is added, add it without breaking existing DTOs.
 
-### 4. Metadata precision
+### 4. Metadata Precision
 
-metadata target移動判定は、node id、fingerprint、source range、前後文脈を使う。
+Metadata target move detection uses node ids, fingerprints, source ranges, and surrounding context.
 
-`v0.1.1` では、誤って1候補に決める修正を禁止する。曖昧な場合は `Conflict`、復元できない場合は `Unresolved` を返す契約を維持する。
+`v0.1.1` must not silently choose one target when the result is ambiguous. Ambiguous recovery returns `Conflict`; unrecoverable recovery returns `Unresolved`.
 
-### 5. Sync anchor materials
+### 5. Sync Anchor Materials
 
-KMMは同期制御を持たない。
+KMM does not own synchronization control.
 
-KatanAがeditorとviewerを対応付けるために既存のnode id、source range、line-column、raw snippet、fingerprintだけでは不足する場合、KMMは追加のanchor材料をpublic DTOとして返すことを検討する。
+If existing node ids, source ranges, line-column positions, raw snippets, and fingerprints are insufficient for KatanA to map editor and viewer nodes, KMM may add renderer-neutral anchor material to the public DTO.
 
-追加する場合も、KMMはviewerやeditorへ命令しない。
+Even then, KMM does not send commands to viewers or editors.
 
 ## Release Policy
 
-`v0.1.1` は `release/v0.1.1` でまとめ、`master` へrelease PRを作る。
+Collect `v0.1.1` on `release/v0.1.1` and create a release PR to `master`.
 
-公開前には次を通す。
+Before publication, run:
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model

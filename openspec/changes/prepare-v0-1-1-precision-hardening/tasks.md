@@ -2,41 +2,41 @@
 
 ## Definition of Ready
 
-- [x] `v0.1.0` はKMMの初回公開境界を固定するリリース（release）である
-- [x] `v0.1.0` にはparser精度、metadata照合精度、同期anchor材料の追加を混ぜない方針である
-- [x] KMMは描画、export、同期制御を持たない方針である
+- [x] `v0.1.0` fixes KMM's initial public boundary
+- [x] parser precision, metadata matching precision, and additional synchronization anchor materials are intentionally excluded from `v0.1.0`
+- [x] KMM does not own rendering, export, or synchronization control
 
-## Tasks: 計画
+## Tasks: Planning
 
-- [x] 1.1 `v0.1.1` を精度向上releaseとして位置付ける
-- [x] 1.2 `v0.1.1` の対象と対象外を文書化する
-- [x] 1.3 downstream採用結果をKMM責務へ分類する流れを定義する
-- [x] 1.4 fixture-firstで修正する方針を定義する
-- [x] 1.5 `v0.1.1` のrelease policyを定義する
+- [x] 1.1 Position `v0.1.1` as a precision-hardening release
+- [x] 1.2 Document `v0.1.1` scope and non-scope
+- [x] 1.3 Define how to classify downstream adoption results into KMM responsibility
+- [x] 1.4 Define the fixture-first fix policy
+- [x] 1.5 Define the `v0.1.1` release policy
 
-## Tasks: 実装
+## Tasks: Implementation
 
-- [ ] 2.1 KDV、KLE、KatanAで `katana-markdown-model = "0.1.0"` を採用した結果を棚卸しする
-- [ ] 2.2 KMM解析精度、metadata解決、同期材料、downstream責務へ問題を分類する
-- [ ] 2.3 KMMで扱う問題をfixture testで再現する
-- [ ] 2.4 source range、line-column、raw snippet、fingerprintのズレを修正する
-- [ ] 2.5 footnote、image、link、HTML inline、math inlineの専用DTO要否を判断する
-- [ ] 2.6 専用DTOが必要な場合、既存public DTOを壊さず追加する
-- [ ] 2.7 metadata target移動判定の精度を改善する
-- [ ] 2.8 曖昧なmetadata復元では `Conflict` を返す回帰テストを維持する
-- [ ] 2.9 復元不能なmetadataでは `Unresolved` を返す回帰テストを維持する
-- [ ] 2.10 editor-viewer同期で不足したanchor材料があれば、KMM public DTOとして必要最小限で追加する
-- [ ] 2.11 KMMがviewerまたはeditorへ命令しないことを文書とtestで確認する
+- [ ] 2.1 Inventory adoption results from KDV, KLE, and KatanA using `katana-markdown-model = "0.1.0"`
+- [ ] 2.2 Classify issues into KMM parsing precision, metadata resolution, synchronization material, and downstream responsibility
+- [ ] 2.3 Reproduce KMM-owned issues with fixture tests
+- [ ] 2.4 Fix source range, line-column, raw snippet, and fingerprint drift
+- [ ] 2.5 Decide whether footnote, image, link, HTML inline, or math inline needs dedicated DTOs
+- [ ] 2.6 If a dedicated DTO is needed, add it without breaking existing public DTOs
+- [ ] 2.7 Improve metadata target move-detection precision
+- [ ] 2.8 Preserve regression tests that return `Conflict` for ambiguous metadata recovery
+- [ ] 2.9 Preserve regression tests that return `Unresolved` for unrecoverable metadata
+- [ ] 2.10 If editor-viewer synchronization needs more anchor material, add only the minimum renderer-neutral KMM public DTO fields
+- [ ] 2.11 Confirm in docs and tests that KMM does not command viewers or editors
 
 ## Definition of Done
 
-- [ ] downstream採用結果のうち、KMMで扱う問題だけがtask化されている
-- [ ] 追加・修正した挙動がfixture testで固定されている
-- [ ] KMMがlibrary-onlyを維持している
-- [ ] 公開契約（public contract）に第三者parser ASTが漏れていない
-- [ ] KMMが描画、export、同期制御を持っていない
-- [ ] `just check` が成功している
-- [ ] `just release-check` が成功している
+- [ ] only KMM-owned issues from downstream adoption are taskized
+- [ ] added or changed behavior is fixed by fixture tests
+- [ ] KMM remains library-only
+- [ ] third-party parser ASTs do not leak into the public contract
+- [ ] KMM does not own rendering, export, or synchronization control
+- [ ] `just check` passes
+- [ ] `just release-check` passes
 
 ## Verification
 

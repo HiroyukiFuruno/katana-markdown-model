@@ -1,13 +1,13 @@
 ---
 name: self-review
-description: katana-markdown-model の差分をcommitやhandoff前に自己レビューする。
+description: Self-review katana-markdown-model diffs before commit or handoff.
 ---
 
 # Self Review
 
-現在の差分を対象に、次の観点で確認します。
+Review the current diff from these perspectives.
 
-## 範囲確認
+## Scope Check
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
@@ -15,17 +15,17 @@ git status --short
 git diff --stat
 ```
 
-## 設計確認
+## Design Check
 
-- KMMがKatanA、kcf、kdp、kle、UI frameworkへ依存していない。
-- public contractに第三者parser ASTが漏れていない。
-- metadataをMarkdown本文へ埋め込んでいない。
-- rendererやexporterの責務をKMMへ持ち込んでいない。
+- KMM does not depend on KatanA, KCF, KDP, KLE, or UI frameworks.
+- Third-party parser ASTs do not leak into the public contract.
+- Metadata is not embedded into Markdown content.
+- Renderer or exporter responsibilities are not moved into KMM.
 
-## 品質確認
+## Quality Check
 
 ```bash
 just check
 ```
 
-FAILのままcommit、push、handoffへ進めません。
+Do not commit, push, or hand off while this fails.
