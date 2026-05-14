@@ -1,0 +1,101 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version, for example v0.1.0
+        required: true
+        type: string
+      publish_crate:
+        description: Publish to crates.io and create GitHub Release
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+
+      - name: Cache Rust build outputs
+        uses: Swatinem/rust-cache@v2.9.1
+        with:
+          shared-key: release-ubuntu-stable
+
+      - name: Install just
+        uses: taiki-e/install-action@v2.77.1
+        with:
+          tool: just
+
+      - name: Validate release target
+        run: |
+          version="${{ inputs.version }}"
+          if [[ ! "$version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "version must look like vX.Y.Z" >&2
+            exit 1
+          fi
+
+          if [[ "${GITHUB_REF_NAME}" != "master" ]]; then
+            echo "release workflow must run from master" >&2
+            exit 1
+          fi
+
+          cargo_version="$(awk -F ' = ' '$1 == "version" { gsub(/"/, "", $2); print $2; exit }' Cargo.toml)"
+          if [[ "$cargo_version" != "${version#v}" ]]; then
+            echo "Cargo.toml version ${cargo_version} does not match ${version}" >&2
+            exit 1
+          fi
+
+          notes_file="docs/release-notes/${version}.md"
+          if [[ ! -f "$notes_file" ]]; then
+            echo "${notes_file} is required" >&2
+            exit 1
+          fi
+
+      - name: Release readiness gate
+        run: just release-check
+
+      - name: Dry run stop
+        if: ${{ !inputs.publish_crate }}
+        run: |
+          echo "publish_crate=false; release readiness gate completed without publishing."
+
+      - name: Publish crate
+        if: ${{ inputs.publish_crate }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          if [[ -z "${CARGO_REGISTRY_TOKEN:-}" ]]; then
+            echo "CARGO_REGISTRY_TOKEN secret is required." >&2
+            exit 1
+          fi
+          cargo publish --locked --token "$CARGO_REGISTRY_TOKEN"
+
+      - name: Create GitHub Release
+        if: ${{ inputs.publish_crate }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${{ inputs.version }}"
+          gh release create "$version" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "katana-markdown-model ${version}" \
+            --notes-file "docs/release-notes/${version}.md"

@@ -1,0 +1,104 @@
+{
+  "markdown_path": "README.md",
+  "entries": [
+    {
+      "key": "pdf-page:1",
+      "target": {
+        "file_path": "README.md",
+        "node_id": "kmm-pdf-page-anchor",
+        "byte_range": {
+          "start": 0,
+          "end": 12
+        },
+        "line_column_range": {
+          "start": {
+            "line": 1,
+            "column": 1
+          },
+          "end": {
+            "line": 1,
+            "column": 13
+          }
+        },
+        "text_fingerprint": {
+          "algorithm": "sha256",
+          "value": "0000000000000000000000000000000000000000000000000000000000000001"
+        },
+        "context": {
+          "before": "",
+          "after": "next section"
+        }
+      },
+      "payload": {
+        "kind": "pdf-page",
+        "page": 1
+      }
+    },
+    {
+      "key": "llm-annotation:summary",
+      "target": {
+        "file_path": "README.md",
+        "node_id": "kmm-llm-annotation-anchor",
+        "byte_range": {
+          "start": 13,
+          "end": 25
+        },
+        "line_column_range": {
+          "start": {
+            "line": 3,
+            "column": 1
+          },
+          "end": {
+            "line": 3,
+            "column": 13
+          }
+        },
+        "text_fingerprint": {
+          "algorithm": "sha256",
+          "value": "0000000000000000000000000000000000000000000000000000000000000002"
+        },
+        "context": {
+          "before": "previous section",
+          "after": "next section"
+        }
+      },
+      "payload": {
+        "kind": "llm-annotation",
+        "label": "summary"
+      }
+    },
+    {
+      "key": "ast-edit:copy",
+      "target": {
+        "file_path": "README.md",
+        "node_id": "kmm-ast-edit-anchor",
+        "byte_range": {
+          "start": 26,
+          "end": 38
+        },
+        "line_column_range": {
+          "start": {
+            "line": 5,
+            "column": 1
+          },
+          "end": {
+            "line": 5,
+            "column": 13
+          }
+        },
+        "text_fingerprint": {
+          "algorithm": "sha256",
+          "value": "0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        "context": {
+          "before": "previous section",
+          "after": ""
+        }
+      },
+      "payload": {
+        "kind": "ast-edit",
+        "operation": "copy"
+      }
+    }
+  ]
+}
