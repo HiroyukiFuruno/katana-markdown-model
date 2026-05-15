@@ -39,7 +39,8 @@ These are materials for KLE save-time metadata reconciliation, KDV viewer/export
 | --- | --- |
 | `katana-markdown-model` | Markdown parsing, document structure, source mapping, metadata target resolution |
 | `katana-document-viewer` | viewer, hit-test, and HTML/PDF/PNG/JPG export from KMM DTOs |
-| `katana-canvas-forge` | external rendering for Mermaid, Draw.io, PlantUML, and math |
+| `katana-diagram-renderer` | external rendering for Mermaid, Draw.io, PlantUML, and math |
+| `katana-canvas-forge` | document export (HTML / PDF / PNG / JPEG) |
 | `katana-language-editor` | editing surface and save-time metadata reconciliation |
 | `katana` | viewer/editor/export integration and editor-viewer synchronization control |
 
