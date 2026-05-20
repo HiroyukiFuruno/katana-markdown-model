@@ -1,13 +1,8 @@
 use super::inline::InlineScanner;
 use super::inline_syntax::{autolink_destination, destination_title, html_end};
-use crate::{
-    FootnoteReferenceNode, ImageNode, InlineHtmlNode, KmmNode, KmmNodeKind, LinkNode, SourceSpan,
-};
+use crate::{FootnoteReferenceNode, ImageNode, InlineHtmlNode, KmmNode, KmmNodeKind, LinkNode};
 
-impl<F> InlineScanner<'_, F>
-where
-    F: Fn(usize, usize) -> SourceSpan,
-{
+impl InlineScanner<'_> {
     pub(super) fn image(&mut self) -> Option<KmmNode> {
         let start = self.offset;
         let rest = &self.raw[start..];

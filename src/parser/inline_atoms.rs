@@ -1,23 +1,18 @@
 use super::emoji::EmojiParser;
 use super::inline::InlineScanner;
-use crate::{
-    EmojiNode, InlineCodeNode, InlineMathNode, InlineSpan, KmmNode, KmmNodeKind, SourceSpan,
-};
+use crate::{EmojiNode, InlineCodeNode, InlineMathNode, InlineSpan, KmmNode, KmmNodeKind};
 
-impl<F> InlineScanner<'_, F>
-where
-    F: Fn(usize, usize) -> SourceSpan,
-{
+impl InlineScanner<'_> {
     pub(super) fn strong(&mut self) -> Option<KmmNode> {
-        self.delimited("**", |text| KmmNodeKind::Strong(InlineSpan { text }))
+        self.nested_delimited("**", |text| KmmNodeKind::Strong(InlineSpan { text }))
     }
 
     pub(super) fn emphasis(&mut self) -> Option<KmmNode> {
-        self.delimited("*", |text| KmmNodeKind::Emphasis(InlineSpan { text }))
+        self.nested_delimited("*", |text| KmmNodeKind::Emphasis(InlineSpan { text }))
     }
 
     pub(super) fn strikethrough(&mut self) -> Option<KmmNode> {
-        self.delimited("~~", |text| KmmNodeKind::Strikethrough(InlineSpan { text }))
+        self.nested_delimited("~~", |text| KmmNodeKind::Strikethrough(InlineSpan { text }))
     }
 
     pub(super) fn inline_code(&mut self) -> Option<KmmNode> {

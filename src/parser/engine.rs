@@ -77,7 +77,7 @@ impl<'a> ParserCursor<'a> {
         if line.trim_start().starts_with("```") {
             return self.code_block();
         }
-        if line.trim() == "$$" {
+        if self.is_dollar_math_block() {
             return self.dollar_math_block();
         }
         if self.is_html_start(line) {

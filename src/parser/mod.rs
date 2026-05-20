@@ -1,5 +1,6 @@
 mod block;
 mod cursor_blocks;
+mod dollar_math;
 mod emoji;
 mod engine;
 mod inline;
