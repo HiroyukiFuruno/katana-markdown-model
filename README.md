@@ -55,6 +55,6 @@ assert_eq!(document.nodes.len(), 2);
 
 - Renderer-neutral `KmmDocument`, `KmmNode`, and `KmmNodeKind`
 - Source ranges, line-column positions, raw snippets, and text fingerprints
-- Headings, paragraphs, HTML blocks, badge rows, lists, code blocks, diagram blocks, tables, blockquotes, alerts, and description lists
+- Headings, paragraphs, inline spans, links, images, footnotes, math blocks, HTML blocks, badge rows, lists, code blocks, diagram blocks, tables, blockquotes, alerts, and description lists
 - External metadata targets and target re-resolution APIs
 - Repository AST lint through `katana-ast-lint`

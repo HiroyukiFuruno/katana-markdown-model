@@ -24,6 +24,18 @@ pub struct KmmNode {
 pub enum KmmNodeKind {
     Heading(HeadingNode),
     Paragraph,
+    Text(TextSpan),
+    Strong(InlineSpan),
+    Emphasis(InlineSpan),
+    Strikethrough(InlineSpan),
+    InlineCode(InlineCodeNode),
+    InlineHtml(InlineHtmlNode),
+    Link(LinkNode),
+    Image(ImageNode),
+    FootnoteReference(FootnoteReferenceNode),
+    FootnoteDefinition(FootnoteDefinitionNode),
+    InlineMath(InlineMathNode),
+    DollarMathBlock(DollarMathBlockNode),
     Emoji(EmojiNode),
     HtmlBlock(HtmlBlockRole),
     List(ListNode),
@@ -49,6 +61,62 @@ pub struct EmojiNode {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TextSpan {
+    pub text: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InlineSpan {
+    pub text: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InlineCodeNode {
+    pub code: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InlineHtmlNode {
+    pub html: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct LinkNode {
+    pub label: String,
+    pub destination: String,
+    pub title: Option<String>,
+    pub autolink: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ImageNode {
+    pub alt: String,
+    pub src: String,
+    pub title: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FootnoteReferenceNode {
+    pub label: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct FootnoteDefinitionNode {
+    pub label: String,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InlineMathNode {
+    pub expression: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DollarMathBlockNode {
+    pub expression: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HtmlBlockRole {
     Generic,
     Centered,
@@ -59,6 +127,17 @@ pub enum HtmlBlockRole {
 pub struct ListNode {
     pub ordered: bool,
     pub task_markers: Vec<String>,
+    pub items: Vec<ListItemNode>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ListItemNode {
+    pub marker: String,
+    pub ordered_number: Option<usize>,
+    pub task_marker: Option<String>,
+    pub body: Vec<KmmNode>,
+    pub children: Vec<KmmNode>,
+    pub source: SourceSpan,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,6 +1,7 @@
 use super::block::BlockParser;
-use super::emoji::EmojiParser;
+use super::inline::InlineParser;
 use super::line_index::{LineIndex, SourceLine};
+use super::quote::BlockQuoteParser;
 use crate::{
     KmmDocument, KmmError, KmmNode, KmmNodeKind, MarkdownInput, SourceSpan, TextFingerprint,
 };
@@ -76,8 +77,14 @@ impl<'a> ParserCursor<'a> {
         if line.trim_start().starts_with("```") {
             return self.code_block();
         }
+        if line.trim() == "$$" {
+            return self.dollar_math_block();
+        }
         if self.is_html_start(line) {
             return self.html_block();
+        }
+        if self.is_footnote_definition() {
+            return self.footnote_definition();
         }
         if self.is_table_start() {
             return self.table();
@@ -114,17 +121,31 @@ impl<'a> ParserCursor<'a> {
     }
 
     fn inline_children(&self, kind: &KmmNodeKind, span: &SourceSpan) -> Vec<KmmNode> {
-        if !matches!(
-            kind,
-            KmmNodeKind::Heading(_) | KmmNodeKind::Paragraph | KmmNodeKind::List(_)
-        ) {
-            return Vec::new();
+        match kind {
+            KmmNodeKind::Heading(_) | KmmNodeKind::Paragraph => {
+                let base = span.byte_range.start;
+                InlineParser::nodes(&span.raw.text, |start, end| {
+                    self.index
+                        .source_span_for_byte_range(self.source, base + start, base + end)
+                })
+            }
+            KmmNodeKind::FootnoteDefinition(definition) => {
+                let Some(body_start) = footnote_body_start(&span.raw.text) else {
+                    return Vec::new();
+                };
+                InlineParser::nodes(&definition.text, |start, end| {
+                    self.index.source_span_for_byte_range(
+                        self.source,
+                        span.byte_range.start + body_start + start,
+                        span.byte_range.start + body_start + end,
+                    )
+                })
+            }
+            KmmNodeKind::BlockQuote | KmmNodeKind::Alert { .. } => {
+                BlockQuoteParser::new(self.source, self.index, span).children()
+            }
+            _ => Vec::new(),
         }
-        let base = span.byte_range.start;
-        EmojiParser::emoji_nodes(&span.raw.text, |start, end| {
-            self.index
-                .source_span_for_byte_range(self.source, base + start, base + end)
-        })
     }
 
     pub(super) fn current(&self) -> &SourceLine {
@@ -135,4 +156,14 @@ impl<'a> ParserCursor<'a> {
         let span = self.index.source_span(self.source, start, end);
         span.raw.text
     }
+}
+
+fn footnote_body_start(raw: &str) -> Option<usize> {
+    let body_start = raw.find("]:")? + 2;
+    let whitespace = raw[body_start..]
+        .chars()
+        .take_while(|it| it.is_whitespace())
+        .map(char::len_utf8)
+        .sum::<usize>();
+    Some(body_start + whitespace)
 }

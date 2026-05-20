@@ -1,7 +1,8 @@
 use super::block::BlockParser;
 use super::engine::ParserCursor;
+use super::list::ListBlockParser;
 use super::table::TableParser;
-use crate::KmmNodeKind;
+use crate::{DollarMathBlockNode, FootnoteDefinitionNode, KmmNodeKind};
 
 impl ParserCursor<'_> {
     pub(super) fn code_block(&mut self) -> KmmNodeKind {
@@ -74,18 +75,44 @@ impl ParserCursor<'_> {
         let mut lines = Vec::new();
         while self.line < self.index.lines().len() {
             let text = &self.current().text;
-            if !BlockParser::unordered_list_line(text) && !BlockParser::ordered_list_line(text) {
+            if !self.belongs_to_list_block(text) {
                 break;
             }
-            lines.push(text.clone());
+            lines.push(self.current().clone());
             self.line += 1;
         }
-        KmmNodeKind::List(BlockParser::list_node(&lines))
+        KmmNodeKind::List(ListBlockParser::new(self.source, self.index).parse(&lines))
     }
 
     pub(super) fn paragraph(&mut self) -> KmmNodeKind {
         self.line += 1;
         KmmNodeKind::Paragraph
+    }
+
+    pub(super) fn footnote_definition(&mut self) -> KmmNodeKind {
+        let text = self.current().text.trim_start();
+        let label_end = text.find("]:").expect("footnote definition is prechecked");
+        let label = text[2..label_end].to_string();
+        let body = text[label_end + 2..].trim().to_string();
+        self.line += 1;
+        KmmNodeKind::FootnoteDefinition(FootnoteDefinitionNode { label, text: body })
+    }
+
+    pub(super) fn dollar_math_block(&mut self) -> KmmNodeKind {
+        self.line += 1;
+        let mut expression = Vec::new();
+        while self.line < self.index.lines().len() {
+            let text = self.current().text.trim();
+            if text == "$$" {
+                self.line += 1;
+                break;
+            }
+            expression.push(self.current().text.clone());
+            self.line += 1;
+        }
+        KmmNodeKind::DollarMathBlock(DollarMathBlockNode {
+            expression: expression.join("\n"),
+        })
     }
 
     pub(super) fn is_table_start(&self) -> bool {
@@ -96,6 +123,11 @@ impl ParserCursor<'_> {
 
     pub(super) fn is_description_start(&self) -> bool {
         self.line + 1 < self.index.lines().len() && self.next_line_starts_description()
+    }
+
+    pub(super) fn is_footnote_definition(&self) -> bool {
+        let trimmed = self.current().text.trim_start();
+        trimmed.starts_with("[^") && trimmed.contains("]:")
     }
 
     pub(super) fn is_html_start(&self, line: &str) -> bool {
@@ -132,5 +164,16 @@ impl ParserCursor<'_> {
             || raw.contains("</h1>")
             || raw.contains("</details>")
             || raw.contains("</div>")
+    }
+
+    fn belongs_to_list_block(&self, text: &str) -> bool {
+        if BlockParser::unordered_list_line(text) || BlockParser::ordered_list_line(text) {
+            return true;
+        }
+        if text.trim().is_empty() {
+            return self.line + 1 < self.index.lines().len()
+                && self.index.lines()[self.line + 1].text.starts_with("  ");
+        }
+        text.starts_with("  ")
     }
 }
