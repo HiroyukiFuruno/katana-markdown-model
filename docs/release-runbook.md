@@ -1,19 +1,19 @@
-# v0.1.0 Release Runbook
+# Release Runbook
 
 ## Summary
 
-Publish `v0.1.0` only after the release PR has been merged into `master`.
+Publish `vX.Y.Z` only after the release PR has been merged into `master`.
 
-The release PR itself does not publish.
+The release PR itself does not publish. Publication starts from the Release workflow after the release commit reaches `master`.
 
 ## Release PR
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
-git switch release/v0.1.0
+git switch release/vX.Y.Z
 just release-check
-git push -u origin release/v0.1.0
-gh pr create --base master --head release/v0.1.0
+git push -u origin release/vX.Y.Z
+gh pr create --base master --head release/vX.Y.Z
 ```
 
 The PR body must state that publication has not been performed yet. It must also include the `just release-check` result, fixture-test evidence, and any optional structure-inspection evidence.
@@ -44,9 +44,19 @@ just harness-up
 
 ## Publication Through GitHub Actions
 
-After the PR is merged, manually dispatch the `release` workflow from `master`.
+After the PR is merged, the `release` workflow runs from `master` when the release commit changes release-relevant paths.
 
-- `version`: `v0.1.0`
+Automatic release inputs are resolved as follows:
+
+- `version`: `vX.Y.Z` from `Cargo.toml`
+- `publish_crate`: `true`
+- GitHub Release title: `vX.Y.Z`
+
+If the same GitHub Release already exists, publication is skipped.
+
+Use manual dispatch only for explicit reruns or failure recovery.
+
+- `version`: `vX.Y.Z`
 - `publish_crate`: `true`
 
 When `publish_crate=false`, the workflow runs `just release-check` only. It does not create a GitHub Release or publish to crates.io.
@@ -61,18 +71,18 @@ git switch master
 git pull --ff-only origin master
 just release-check
 cargo publish --locked
-gh release create v0.1.0 \
+gh release create vX.Y.Z \
   --repo HiroyukiFuruno/katana-markdown-model \
   --target master \
-  --title "katana-markdown-model v0.1.0" \
-  --notes-file docs/release-notes/v0.1.0.md
+  --title "vX.Y.Z" \
+  --notes-file docs/release-notes/vX.Y.Z.md
 ```
 
 ## Failure Policy
 
 Do not reuse a version that has already been published to crates.io.
 
-- If publication fails before crates.io upload, fix the issue and rerun the same `v0.1.0` release.
+- If publication fails before crates.io upload, fix the issue and rerun the same `vX.Y.Z` release.
 - If GitHub Release creation fails after crates.io publication, recreate the GitHub Release with the same tag.
 - If a content issue is found after crates.io publication, fix it in the next patch version.
 
@@ -80,9 +90,9 @@ Do not reuse a version that has already been published to crates.io.
 
 ```bash
 cd /Users/hiroyuki_furuno/works/private/katana-markdown-model
-gh release view v0.1.0 --repo HiroyukiFuruno/katana-markdown-model
+gh release view vX.Y.Z --repo HiroyukiFuruno/katana-markdown-model
 cargo search katana-markdown-model --limit 1
-cargo info katana-markdown-model@0.1.0
+cargo info katana-markdown-model@X.Y.Z
 ```
 
 ## Branch Hygiene
@@ -95,8 +105,8 @@ git switch master
 git pull --ff-only origin master
 git branch --list
 git worktree list
-git branch -d release/v0.1.0
-git push origin --delete release/v0.1.0
+git branch -d release/vX.Y.Z
+git push origin --delete release/vX.Y.Z
 ```
 
-If the remote release branch was already deleted by PR merge, `git push origin --delete release/v0.1.0` is unnecessary.
+If the remote release branch was already deleted by PR merge, `git push origin --delete release/vX.Y.Z` is unnecessary.
