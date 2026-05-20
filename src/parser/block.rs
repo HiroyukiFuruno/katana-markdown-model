@@ -1,6 +1,4 @@
-use crate::{
-    CodeBlockRole, DescriptionItem, DiagramKind, HeadingNode, HtmlBlockRole, KmmNodeKind, ListNode,
-};
+use crate::{CodeBlockRole, DescriptionItem, DiagramKind, HeadingNode, HtmlBlockRole, KmmNodeKind};
 
 const MAX_HEADING_LEVEL: usize = 6;
 
@@ -61,13 +59,6 @@ impl BlockParser {
         .then_some(legacy)
     }
 
-    pub(crate) fn list_node(lines: &[String]) -> ListNode {
-        ListNode {
-            ordered: lines.iter().any(|line| Self::ordered_list_line(line)),
-            task_markers: lines.iter().filter_map(|line| task_marker(line)).collect(),
-        }
-    }
-
     pub(crate) fn description_items(lines: &[String]) -> Vec<DescriptionItem> {
         lines
             .chunks(2)
@@ -95,11 +86,4 @@ impl BlockParser {
         };
         !number.is_empty() && number.chars().all(|it| it.is_ascii_digit()) && rest.starts_with(' ')
     }
-}
-
-fn task_marker(line: &str) -> Option<String> {
-    ["[x]", "[ ]", "[-]", "[/]"]
-        .iter()
-        .find(|marker| line.contains(**marker))
-        .map(|marker| (*marker).to_string())
 }
