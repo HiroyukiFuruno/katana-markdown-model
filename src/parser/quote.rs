@@ -112,7 +112,7 @@ impl<'a> BlockQuoteParser<'a> {
             .iter()
             .map(|line| SourceLine {
                 number: 0,
-                start: line.start,
+                start: line.text_start,
                 end: line.end,
                 text: line.text.clone(),
             })

@@ -9,25 +9,19 @@ impl InlineParser {
         raw: &str,
         span_for_match: impl Fn(usize, usize) -> SourceSpan,
     ) -> Vec<KmmNode> {
-        InlineScanner::new(raw, span_for_match).nodes()
+        InlineScanner::new(raw, &span_for_match).nodes()
     }
 }
 
-pub(super) struct InlineScanner<'a, F>
-where
-    F: Fn(usize, usize) -> SourceSpan,
-{
+pub(super) struct InlineScanner<'a> {
     pub(super) raw: &'a str,
     pub(super) offset: usize,
     pub(super) ordinals: HashMap<&'static str, usize>,
-    pub(super) span_for_match: F,
+    pub(super) span_for_match: &'a dyn Fn(usize, usize) -> SourceSpan,
 }
 
-impl<'a, F> InlineScanner<'a, F>
-where
-    F: Fn(usize, usize) -> SourceSpan,
-{
-    fn new(raw: &'a str, span_for_match: F) -> Self {
+impl<'a> InlineScanner<'a> {
+    fn new(raw: &'a str, span_for_match: &'a dyn Fn(usize, usize) -> SourceSpan) -> Self {
         Self {
             raw,
             offset: 0,
@@ -64,6 +58,30 @@ where
         delimiter: &str,
         kind: impl Fn(String) -> KmmNodeKind,
     ) -> Option<KmmNode> {
+        let bounds = self.delimited_bounds(delimiter)?;
+        Some(self.take_node(
+            kind(self.raw[bounds.content_start..bounds.content_end].to_string()),
+            bounds.start,
+            bounds.end,
+        ))
+    }
+
+    pub(super) fn nested_delimited(
+        &mut self,
+        delimiter: &str,
+        kind: impl Fn(String) -> KmmNodeKind,
+    ) -> Option<KmmNode> {
+        let bounds = self.delimited_bounds(delimiter)?;
+        let content = &self.raw[bounds.content_start..bounds.content_end];
+        let children = InlineParser::nodes(content, |start, end| {
+            (self.span_for_match)(bounds.content_start + start, bounds.content_start + end)
+        });
+        let mut node = self.take_node(kind(content.to_string()), bounds.start, bounds.end);
+        node.children = children;
+        Some(node)
+    }
+
+    fn delimited_bounds(&self, delimiter: &str) -> Option<DelimitedBounds> {
         let start = self.offset;
         let content_start = start + delimiter.len();
         if !self.raw[start..].starts_with(delimiter) {
@@ -73,11 +91,12 @@ where
         if content_start == content_end {
             return None;
         }
-        Some(self.take_node(
-            kind(self.raw[content_start..content_end].to_string()),
+        Some(DelimitedBounds {
             start,
-            content_end + delimiter.len(),
-        ))
+            content_start,
+            content_end,
+            end: content_end + delimiter.len(),
+        })
     }
 
     fn text_node(&mut self) -> KmmNode {
@@ -113,4 +132,11 @@ where
         self.offset = end;
         KmmNode::new(kind, &source.raw.text.clone(), ordinal, source)
     }
+}
+
+struct DelimitedBounds {
+    start: usize,
+    content_start: usize,
+    content_end: usize,
+    end: usize,
 }

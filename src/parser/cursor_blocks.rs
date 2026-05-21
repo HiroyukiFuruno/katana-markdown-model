@@ -2,7 +2,7 @@ use super::block::BlockParser;
 use super::engine::ParserCursor;
 use super::list::ListBlockParser;
 use super::table::TableParser;
-use crate::{DollarMathBlockNode, FootnoteDefinitionNode, KmmNodeKind};
+use crate::{FootnoteDefinitionNode, KmmNodeKind};
 
 impl ParserCursor<'_> {
     pub(super) fn code_block(&mut self) -> KmmNodeKind {
@@ -96,23 +96,6 @@ impl ParserCursor<'_> {
         let body = text[label_end + 2..].trim().to_string();
         self.line += 1;
         KmmNodeKind::FootnoteDefinition(FootnoteDefinitionNode { label, text: body })
-    }
-
-    pub(super) fn dollar_math_block(&mut self) -> KmmNodeKind {
-        self.line += 1;
-        let mut expression = Vec::new();
-        while self.line < self.index.lines().len() {
-            let text = self.current().text.trim();
-            if text == "$$" {
-                self.line += 1;
-                break;
-            }
-            expression.push(self.current().text.clone());
-            self.line += 1;
-        }
-        KmmNodeKind::DollarMathBlock(DollarMathBlockNode {
-            expression: expression.join("\n"),
-        })
     }
 
     pub(super) fn is_table_start(&self) -> bool {
