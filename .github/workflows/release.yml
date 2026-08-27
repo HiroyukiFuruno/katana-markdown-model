@@ -138,3 +138,13 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "$version" \
             --notes-file "docs/release-notes/${version}.md"
+
+      - name: Run release cleanup
+        if: ${{ steps.release_target.outputs.publish_crate == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          scripts/release/cleanup-after-release.sh \
+            --default-branch master \
+            --version "${{ steps.release_target.outputs.version }}" \
+            --apply
