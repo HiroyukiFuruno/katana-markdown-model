@@ -52,6 +52,8 @@ jobs:
 
       - name: Install just
         uses: taiki-e/install-action@1938d65511705cfc38a640c66eddcce76384d60e # just
+        with:
+          tool: just
 
       - name: Resolve release target
         id: release_target
